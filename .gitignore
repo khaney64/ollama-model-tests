@@ -21,8 +21,7 @@ requirements/engine.md.local
 
 # Reports - keep latest.md and agentic report cards only
 reports/*/comparison_*.md
-reports/cpu-test/trading_engine_test*
-reports/cpu-test/summary-cpu-test.md
+reports/cpu-test/
 
 # Keep CPU agentic results tracked
 !models/*/results/agentic/cpu/metrics.json
