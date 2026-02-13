@@ -20,7 +20,6 @@ requirements/engine.png
 requirements/engine.md.local
 
 # Reports - keep latest.md and agentic report cards only
-reports/*/report_card_engine.md
 reports/*/comparison_*.md
 reports/cpu-test/trading_engine_test*
 reports/cpu-test/summary-cpu-test.md
