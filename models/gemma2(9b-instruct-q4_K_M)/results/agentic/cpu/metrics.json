@@ -1,0 +1,33 @@
+{
+  "model": "gemma2:9b-instruct-q4_K_M",
+  "timing": {
+    "total_duration_s": 292.83,
+    "load_duration_s": 2.92,
+    "prompt_eval_duration_s": 96.28,
+    "eval_duration_s": 192.2
+  },
+  "tokens": {
+    "prompt_eval_count": 3206,
+    "eval_count": 1360,
+    "prompt_eval_tokens_per_sec": 33.3,
+    "eval_tokens_per_sec": 7.08
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 292.84,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-12T23:49:52.056388",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "model": "mistral:7b-instruct-v0.3-q5_K_M",
+  "timing": {
+    "total_duration_s": 252.42,
+    "load_duration_s": 2.42,
+    "prompt_eval_duration_s": 102.44,
+    "eval_duration_s": 147.12
+  },
+  "tokens": {
+    "prompt_eval_count": 3705,
+    "eval_count": 1314,
+    "prompt_eval_tokens_per_sec": 36.17,
+    "eval_tokens_per_sec": 8.93
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 252.43,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-13T00:46:00.175735",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}

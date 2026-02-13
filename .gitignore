@@ -1,0 +1,29 @@
+scripts/__pycache__/
+.claude/
+.grepai/
+*~
+
+# Batch files
+*.bat
+
+# Task results (only agentic CPU results are tracked)
+models/*/results/api/**
+models/*/results/greenfield/**
+models/*/results/refactor/**
+models/*/results/engine/**
+requirements/__pycache__/
+
+# Engine task (proprietary logic)
+scripts/evaluate_engine_code.py
+requirements/engine-output.csv
+requirements/engine.png
+
+# Reports - keep latest.md and agentic report cards only
+reports/*/report_card_engine.md
+reports/*/comparison_*.md
+reports/cpu-test/trading_engine_test*
+reports/cpu-test/summary-cpu-test.md
+
+# Keep CPU agentic results tracked
+!models/*/results/agentic/cpu/metrics.json
+!models/*/results/agentic/cpu/output.md

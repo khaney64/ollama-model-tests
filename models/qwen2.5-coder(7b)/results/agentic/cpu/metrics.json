@@ -1,0 +1,33 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "timing": {
+    "total_duration_s": 174.59,
+    "load_duration_s": 2.12,
+    "prompt_eval_duration_s": 57.09,
+    "eval_duration_s": 114.54
+  },
+  "tokens": {
+    "prompt_eval_count": 2972,
+    "eval_count": 1243,
+    "prompt_eval_tokens_per_sec": 52.06,
+    "eval_tokens_per_sec": 10.85
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 174.61,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-13T05:15:08.429035",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}

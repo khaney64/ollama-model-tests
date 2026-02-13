@@ -1,0 +1,33 @@
+{
+  "model": "llama3.2:latest",
+  "timing": {
+    "total_duration_s": 67.36,
+    "load_duration_s": 2.27,
+    "prompt_eval_duration_s": 29.17,
+    "eval_duration_s": 35.59
+  },
+  "tokens": {
+    "prompt_eval_count": 2902,
+    "eval_count": 697,
+    "prompt_eval_tokens_per_sec": 99.48,
+    "eval_tokens_per_sec": 19.59
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 67.36,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-13T01:45:06.370430",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}

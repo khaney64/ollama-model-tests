@@ -1,0 +1,33 @@
+{
+  "model": "phi4:14b-q4_K_M",
+  "timing": {
+    "total_duration_s": 398.13,
+    "load_duration_s": 4.13,
+    "prompt_eval_duration_s": 119.54,
+    "eval_duration_s": 273.73
+  },
+  "tokens": {
+    "prompt_eval_count": 2887,
+    "eval_count": 1631,
+    "prompt_eval_tokens_per_sec": 24.15,
+    "eval_tokens_per_sec": 5.96
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 398.16,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-13T01:22:28.494356",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "model": "glm-4.7-flash:q4_K_M",
+  "timing": {
+    "total_duration_s": 550.91,
+    "load_duration_s": 4.0,
+    "prompt_eval_duration_s": 60.23,
+    "eval_duration_s": 486.11
+  },
+  "tokens": {
+    "prompt_eval_count": 2883,
+    "eval_count": 4193,
+    "prompt_eval_tokens_per_sec": 47.87,
+    "eval_tokens_per_sec": 8.63
+  },
+  "gpu": {
+    "peak_vram_mb": 0.0,
+    "avg_vram_mb": 0.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 0.0,
+    "sample_count": 0
+  },
+  "task": "agentic",
+  "wall_clock_s": 550.93,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "num_threads": 18,
+  "execution_mode": "cpu",
+  "run_timestamp": "2026-02-13T05:02:30.894183",
+  "hardware": {
+    "cpu_logical_cores": 24
+  }
+}
