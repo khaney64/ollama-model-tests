@@ -17,6 +17,7 @@ requirements/__pycache__/
 scripts/evaluate_engine_code.py
 requirements/engine-output.csv
 requirements/engine.png
+requirements/engine.md.local
 
 # Reports - keep latest.md and agentic report cards only
 reports/*/report_card_engine.md
