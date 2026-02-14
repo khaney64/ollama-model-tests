@@ -1,0 +1,37 @@
+{
+  "model": "qwen3:14b",
+  "timing": {
+    "total_duration_s": 143.06,
+    "load_duration_s": 2.56,
+    "prompt_eval_duration_s": 1.21,
+    "eval_duration_s": 138.83
+  },
+  "tokens": {
+    "prompt_eval_count": 2966,
+    "eval_count": 5839,
+    "prompt_eval_tokens_per_sec": 2455.91,
+    "eval_tokens_per_sec": 42.06
+  },
+  "gpu": {
+    "peak_vram_mb": 11494.0,
+    "avg_vram_mb": 11363.7,
+    "avg_gpu_utilization_pct": 95.4,
+    "max_gpu_utilization_pct": 98.0,
+    "max_temperature_c": 64.0,
+    "peak_cpu_pct": 26.0,
+    "avg_cpu_pct": 7.7,
+    "sample_count": 136
+  },
+  "task": "agentic",
+  "wall_clock_s": 143.07,
+  "num_ctx": 10240,
+  "num_predict": 10240,
+  "num_threads": 18,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-14T00:47:36.423585",
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

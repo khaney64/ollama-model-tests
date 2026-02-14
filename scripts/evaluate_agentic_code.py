@@ -603,27 +603,46 @@ from tools_reference import (
         print("Starting evaluation of all agentic task implementations...")
 
         # Find all models with output.md in agentic results for the specified mode
-        models = []
+        # Each entry is (model_dir_name, ctx_size_or_None)
+        model_entries = []
         for model_dir in self.models_dir.iterdir():
             if model_dir.is_dir():
-                # Check mode-specific path
                 if self.mode == "gpu" and self.ctx_size:
                     output_file = model_dir / "results" / "agentic" / "gpu" / f"ctx-{self.ctx_size}" / "output.md"
+                    if output_file.exists():
+                        model_entries.append((model_dir.name, self.ctx_size))
+                elif self.mode == "gpu" and not self.ctx_size:
+                    # Scan all ctx-* subdirectories
+                    gpu_dir = model_dir / "results" / "agentic" / "gpu"
+                    if gpu_dir.is_dir():
+                        for ctx_dir in sorted(gpu_dir.iterdir()):
+                            if ctx_dir.is_dir() and ctx_dir.name.startswith("ctx-"):
+                                output_file = ctx_dir / "output.md"
+                                if output_file.exists():
+                                    ctx = ctx_dir.name.replace("ctx-", "")
+                                    model_entries.append((model_dir.name, ctx))
                 else:
                     output_file = model_dir / "results" / "agentic" / self.mode / "output.md"
-                if output_file.exists():
-                    models.append(model_dir.name)
+                    if output_file.exists():
+                        model_entries.append((model_dir.name, None))
 
-        print(f"Found {len(models)} models to evaluate:")
-        for model in models:
-            print(f"  - {model}")
+        print(f"Found {len(model_entries)} models to evaluate:")
+        for model_name, ctx in model_entries:
+            label = f"{model_name} (ctx-{ctx})" if ctx else model_name
+            print(f"  - {label}")
 
         # Evaluate each model
         all_results = []
-        for model in models:
-            result = self.evaluate_model(model)
+        for model_name, ctx in model_entries:
+            saved_ctx = self.ctx_size
+            self.ctx_size = ctx
+            result = self.evaluate_model(model_name)
+            # Include ctx size in model name for GPU reports without specific ctx
+            if ctx and not saved_ctx:
+                result['model'] = f"{model_name} (ctx-{ctx})"
             all_results.append(result)
-            self.results[model] = result
+            self.results[result['model']] = result
+            self.ctx_size = saved_ctx
 
         # Generate report
         report_path = self._generate_report(all_results)

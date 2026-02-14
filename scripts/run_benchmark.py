@@ -107,8 +107,12 @@ def parse_num_threads(value: str | None) -> int | None:
 
 def load_prompt(task: str) -> str:
     """Load the prompt for a task, inlining source files for refactor."""
+    # Prefer .md.local (gitignored, real spec) over .md (placeholder)
+    local_path = os.path.join(REQUIREMENTS_DIR, f"{task}.md.local")
     prompt_path = os.path.join(REQUIREMENTS_DIR, f"{task}.md")
-    if not os.path.exists(prompt_path):
+    if os.path.exists(local_path):
+        prompt_path = local_path
+    elif not os.path.exists(prompt_path):
         raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
 
     with open(prompt_path, "r", encoding="utf-8") as f:
@@ -399,6 +403,8 @@ def run_single_benchmark(model: str, task: str, mode: str, num_ctx_override: int
         print(f"  Generation speed: {tokens['eval_tokens_per_sec']} tok/s")
         print(f"  Peak VRAM: {gpu['peak_vram_mb']} MB")
         print(f"  Avg GPU Util: {gpu['avg_gpu_utilization_pct']}%")
+        print(f"  Peak CPU: {gpu['peak_cpu_pct']}%")
+        print(f"  Avg CPU: {gpu['avg_cpu_pct']}%")
 
         # Check for warnings
         warnings = []

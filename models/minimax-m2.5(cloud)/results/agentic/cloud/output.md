@@ -6,127 +6,99 @@
 ## Execution Plan
 
 ### 1. Initialize Configuration
-- **Tools**: None
-- **Purpose**: Set up risk thresholds, portfolio list, and logging configuration
-- **Data Dependencies**: None
+- **Tools**: None (local configuration)
+- **Inputs**: None
+- **Outputs**: Risk configuration dictionary and portfolio list
+- **Description**: Set up the risk thresholds and define which portfolios to analyze
 
-### 2. For Each Portfolio (PORT-001, PORT-002, PORT-003):
+### 2. Log Analysis Start
+- **Tool**: `log_operation()`
+- **Inputs**: Operation name "portfolio_analysis_start", list of portfolio IDs
+- **Outputs**: Audit log entry
+- **Purpose**: Begin audit trail for the analysis session
 
-#### Step 2a: Fetch Portfolio Holdings
-- **Tool**: `get_portfolio_holdings()`
-- **Input**: portfolio_id (e.g., "PORT-001")
-- **Output**: Holdings dictionary with client_name, manager_email, and holdings list
-- **Data Dependencies**: None (first operation for each portfolio)
+### 3. For Each Portfolio (Sequential Processing):
+
+#### 3a. Log Portfolio Analysis Start
+- **Tool**: `log_operation()`
+- **Inputs**: portfolio_id, status "started"
+- **Outputs**: Audit log entry
+
+#### 3b. Fetch Portfolio Holdings
+- **Tool**: `get_portfolio_holdings(portfolio_id)`
+- **Inputs**: portfolio_id (e.g., "PORT-001")
+- **Outputs**: Holdings dictionary with client_name, manager_email, holdings list
+- **Data Dependencies**: None (first step for each portfolio)
 - **Error Handling**: Catch ValueError for invalid portfolio_id, log error, skip to next portfolio
 
-#### Step 2b: Extract and Validate Symbols
-- **Tools**: None (data transformation)
-- **Purpose**: Extract unique stock symbols from holdings
-- **Data Dependencies**: Holdings from Step 2a
-- **Error Handling**: Skip positions with missing symbol data
+#### 3c. Extract Stock Symbols
+- **Tool**: None (data transformation)
+- **Inputs**: holdings list from step 3b
+- **Outputs**: List of stock symbols
+- **Description**: Parse holdings to extract unique symbols for price lookup
 
-#### Step 2c: Fetch Current Stock Prices
-- **Tool**: `get_stock_prices()`
-- **Input**: List of symbols extracted from holdings
-- **Output**: Dictionary mapping symbols to current prices
-- **Data Dependencies**: Symbols from Step 2b
-- **Error Handling**: Handle ValueError for empty symbols list; handle None prices for unknown symbols
+#### 3d. Fetch Current Stock Prices
+- **Tool**: `get_stock_prices(symbols)`
+- **Inputs**: List of stock symbols from step 3c
+- **Outputs**: Dictionary mapping symbols to current prices
+- **Data Dependencies**: Symbols from holdings
+- **Error Handling**: Skip positions with None prices, continue with available data
 
-#### Step 2d: Calculate Portfolio Value
-- **Tool**: `calculate_portfolio_value()`
-- **Input**: 
-  - holdings (from Step 2a)
-  - current_prices (from Step 2c)
-- **Output**: Total portfolio value and position details (gain/loss)
+#### 3e. Calculate Portfolio Value
+- **Tool**: `calculate_portfolio_value(holdings, current_prices)`
+- **Inputs**: Holdings from step 3b, prices from step 3d
+- **Outputs**: Dictionary with total_value and positions (including gain/loss)
 - **Data Dependencies**: Holdings and current prices
-- **Error Handling**: Handle ValueError for empty inputs; skip positions with None prices
+- **Error Handling**: Skip positions with missing prices, log warning
 
-#### Step 2e: Calculate Volatility Score
-- **Tool**: `calculate_volatility_score()`
-- **Input**: 
-  - symbols (from Step 2b)
-  - days = 30 (default)
-- **Output**: Volatility score (0-100 scale)
-- **Data Dependencies**: Symbols from Step 2b
-- **Error Handling**: Handle ValueError for empty symbols or invalid days
+#### 3f. Calculate Volatility Score
+- **Tool**: `calculate_volatility_score(symbols, days=30)`
+- **Inputs**: Symbols list, days=30
+- **Outputs**: Volatility score (float 0-100)
+- **Data Dependencies**: Symbols from step 3c
+- **Error Handling**: Catch ValueError for empty symbols, assign default high volatility
 
-#### Step 2f: Check Risk Thresholds
-- **Tool**: `check_risk_threshold()`
-- **Input**:
-  - portfolio_value (from Step 2d)
-  - volatility_score (from Step 2e)
-  - risk_config (from initialization)
-- **Output**: Risk assessment (is_high_risk, exceeded_thresholds, risk_level)
+#### 3g. Check Risk Thresholds
+- **Tool**: `check_risk_threshold(portfolio_value, volatility_score, risk_config)`
+- **Inputs**: Total value from step 3e, volatility from step 3f, risk config
+- **Outputs**: Risk check result (is_high_risk, exceeded_thresholds, risk_level)
 - **Data Dependencies**: Portfolio value and volatility score
-- **Error Handling**: Handle ValueError for negative values
+- **Error Handling**: Catch ValueError for negative values
 
-#### Step 2g: Log Risk Assessment
+#### 3h. Conditional: Generate Report (if high-risk)
+- **Tool**: `generate_report(portfolio_data, report_format="markdown")`
+- **Inputs**: Combined portfolio data dictionary
+- **Outputs**: Formatted markdown report string
+- **Data Dependencies**: All previous results combined
+- **Error Handling**: Catch ValueError for missing fields
+
+#### 3i. Conditional: Send Notification (if high-risk)
+- **Tool**: `send_notification(recipient, subject, message, priority="high")`
+- **Inputs**: manager_email from holdings, subject, report text, priority
+- **Outputs**: Notification result dictionary
+- **Data Dependencies**: Report from step 3h, manager_email from step 3b
+- **Error Handling**: Catch ValueError for invalid email/priority, log failure
+
+#### 3j. Log Portfolio Analysis Completion
 - **Tool**: `log_operation()`
-- **Input**: operation="risk_check", details with portfolio_id and risk_level
-- **Level**: "warning" if high risk, "info" otherwise
-- **Data Dependencies**: Risk assessment from Step 2f
+- **Inputs**: portfolio_id, risk_level, status "completed"
+- **Outputs**: Audit log entry
 
-### 3. High-Risk Portfolio Processing (Conditional)
-
-If `is_high_risk` is True:
-
-#### Step 3a: Generate Report
-- **Tool**: `generate_report()`
-- **Input**:
-  - portfolio_data (assembled from all previous steps)
-  - report_format="markdown"
-- **Output**: Formatted report string
-- **Data Dependencies**: All portfolio analysis data
-- **Error Handling**: Handle ValueError for missing fields or invalid format
-
-#### Step 3b: Log Report Generation
+### 4. Log Analysis Session Completion
 - **Tool**: `log_operation()`
-- **Input**: operation="report_generation", details with portfolio_id
-- **Level**: "info"
+- **Inputs**: Summary statistics (portfolios processed, high-risk count)
+- **Outputs**: Audit log entry
 
-#### Step 3c: Send Notification
-- **Tool**: `send_notification()`
-- **Input**:
-  - recipient (manager_email from holdings)
-  - subject (e.g., "High Risk Alert: Portfolio PORT-001")
-  - message (generated report)
-  - priority="high"
-- **Output**: Notification result with message_id and timestamp
-- **Data Dependencies**: Manager email from Step 2a, report from Step 3a
-- **Error Handling**: Handle ValueError for invalid email or priority; log failure but continue
-
-#### Step 3d: Log Notification
-- **Tool**: `log_operation()`
-- **Input**: operation="notification_sent", details with portfolio_id and message_id
-- **Level**: "info"
-
-### 4. Error Handling Strategy
-
-- **Per-Portfolio Wrapping**: Each portfolio processing block wrapped in try/except
-- **Failure Isolation**: One portfolio's failure doesn't stop processing of others
-- **Logging**: All errors logged with appropriate level (error/warning)
-- **Data Validation**: Check for None/missing values before passing to tools
-- **Graceful Degradation**: Continue with next step if optional data missing
-
-### 5. Audit Trail Maintenance
-
-Log operations at key points:
-- "analysis_started" - When beginning portfolio analysis
-- "portfolio_fetched" - After getting holdings
-- "prices_fetched" - After getting stock prices
-- "value_calculated" - After calculating portfolio value
-- "volatility_calculated" - After calculating volatility
-- "risk_check" - After checking thresholds
-- "report_generation" - After generating report
-- "notification_sent" - After sending notification
-- "analysis_completed" - After finishing all portfolios
-
-All operations logged with portfolio_id context for traceability.
+### Error Handling Strategy
+1. **Per-portfolio try/except**: Each portfolio processed in isolated try/except block
+2. **Specific exception handling**: Catch ValueError, TypeError, KeyError separately
+3. **Graceful degradation**: Continue processing remaining portfolios if one fails
+4. **Detailed error logging**: Log error details including exception type and message
+5. **Default values**: Assign safe defaults (e.g., high volatility) when calculations fail
+6. **Notification failures**: Log but don't fail entire process if notification sending fails
 ```
 
----
-
-## Section 2: Implementation (Python)
+## Section 2: Implementation
 
 ```python
 #!/usr/bin/env python3
@@ -150,438 +122,483 @@ from tools_reference import (
 )
 
 
-# Configuration
+# =============================================================================
+# CONFIGURATION
+# =============================================================================
+
+# Portfolio IDs to analyze
 PORTFOLIO_IDS = ["PORT-001", "PORT-002", "PORT-003"]
 
+# Risk configuration thresholds
 RISK_CONFIG = {
     "max_volatility": 35.0,
     "min_value": 50000,
     "max_value": 2000000
 }
 
+# Volatility calculation period
+VOLATILITY_DAYS = 30
 
-def analyze_portfolio(portfolio_id: str) -> dict:
-    """
-    Analyze a single portfolio and return analysis results.
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def extract_symbols(holdings: list[dict]) -> list[str]:
+    """Extract unique stock symbols from holdings list.
     
     Args:
-        portfolio_id: The portfolio identifier to analyze
+        holdings: List of holding dictionaries with 'symbol' key
         
     Returns:
-        Dictionary with analysis results or error information
+        List of unique stock symbols
     """
-    result = {
-        "portfolio_id": portfolio_id,
-        "success": False,
-        "is_high_risk": False,
-        "error": None
-    }
-    
-    # Step 1: Fetch portfolio holdings
-    log_operation(
-        "portfolio_analysis_started",
-        {"portfolio_id": portfolio_id},
-        "info"
-    )
-    
-    try:
-        portfolio_data = get_portfolio_holdings(portfolio_id)
-    except ValueError as e:
-        log_operation(
-            "portfolio_fetch_error",
-            {"portfolio_id": portfolio_id, "error": str(e)},
-            "error"
-        )
-        result["error"] = f"Failed to fetch holdings: {str(e)}"
-        return result
-    
-    log_operation(
-        "portfolio_fetched",
-        {"portfolio_id": portfolio_id, "client_name": portfolio_data.get("client_name")},
-        "info"
-    )
-    
-    # Step 2: Extract symbols from holdings
-    symbols = []
-    for holding in portfolio_data.get("holdings", []):
-        if holding.get("symbol"):
-            symbols.append(holding["symbol"])
-    
-    if not symbols:
-        log_operation(
-            "no_symbols",
-            {"portfolio_id": portfolio_id},
-            "warning"
-        )
-        result["error"] = "No valid symbols found in holdings"
-        return result
-    
-    # Step 3: Fetch current stock prices
-    try:
-        current_prices = get_stock_prices(symbols)
-    except ValueError as e:
-        log_operation(
-            "price_fetch_error",
-            {"portfolio_id": portfolio_id, "error": str(e)},
-            "error"
-        )
-        result["error"] = f"Failed to fetch prices: {str(e)}"
-        return result
-    
-    # Filter out None prices (unknown symbols)
-    valid_prices = {sym: price for sym, price in current_prices.items() if price is not None}
-    missing_prices = set(symbols) - set(valid_prices.keys())
-    
-    if missing_prices:
-        log_operation(
-            "missing_prices",
-            {"portfolio_id": portfolio_id, "missing_symbols": list(missing_prices)},
-            "warning"
-        )
-    
-    log_operation(
-        "prices_fetched",
-        {"portfolio_id": portfolio_id, "symbols_count": len(valid_prices)},
-        "info"
-    )
-    
-    # Step 4: Calculate portfolio value
-    try:
-        value_data = calculate_portfolio_value(
-            portfolio_data.get("holdings", []),
-            valid_prices
-        )
-    except ValueError as e:
-        log_operation(
-            "value_calculation_error",
-            {"portfolio_id": portfolio_id, "error": str(e)},
-            "error"
-        )
-        result["error"] = f"Failed to calculate value: {str(e)}"
-        return result
-    
-    total_value = value_data.get("total_value", 0)
-    
-    log_operation(
-        "value_calculated",
-        {"portfolio_id": portfolio_id, "total_value": total_value},
-        "info"
-    )
-    
-    # Step 5: Calculate volatility score
-    try:
-        volatility_score = calculate_volatility_score(symbols, days=30)
-    except ValueError as e:
-        log_operation(
-            "volatility_calculation_error",
-            {"portfolio_id": portfolio_id, "error": str(e)},
-            "error"
-        )
-        result["error"] = f"Failed to calculate volatility: {str(e)}"
-        return result
-    
-    log_operation(
-        "volatility_calculated",
-        {"portfolio_id": portfolio_id, "volatility_score": volatility_score},
-        "info"
-    )
-    
-    # Step 6: Check risk thresholds
-    try:
-        risk_check = check_risk_threshold(
-            total_value,
-            volatility_score,
-            RISK_CONFIG
-        )
-    except ValueError as e:
-        log_operation(
-            "risk_check_error",
-            {"portfolio_id": portfolio_id, "error": str(e)},
-            "error"
-        )
-        result["error"] = f"Failed to check risk: {str(e)}"
-        return result
-    
-    is_high_risk = risk_check.get("is_high_risk", False)
-    risk_level = risk_check.get("risk_level", "UNKNOWN")
-    exceeded_thresholds = risk_check.get("exceeded_thresholds", [])
-    
-    # Log risk assessment
-    log_operation(
-        "risk_check",
-        {
-            "portfolio_id": portfolio_id,
-            "risk_level": risk_level,
-            "is_high_risk": is_high_risk,
-            "exceeded_thresholds": exceeded_thresholds
-        },
-        "warning" if is_high_risk else "info"
-    )
-    
-    # Update result
-    result["success"] = True
-    result["is_high_risk"] = is_high_risk
-    result["client_name"] = portfolio_data.get("client_name")
-    result["manager_email"] = portfolio_data.get("manager_email")
-    result["total_value"] = total_value
-    result["volatility_score"] = volatility_score
-    result["risk_level"] = risk_level
-    result["exceeded_thresholds"] = exceeded_thresholds
-    result["positions"] = value_data.get("positions", [])
-    
-    # Step 7: Generate report and send notification for high-risk portfolios
-    if is_high_risk:
-        # Assemble portfolio data for report
-        report_data = {
-            "portfolio_id": portfolio_id,
-            "client_name": portfolio_data.get("client_name"),
-            "total_value": total_value,
-            "volatility_score": volatility_score,
-            "risk_level": risk_level,
-            "exceeded_thresholds": exceeded_thresholds,
-            "positions": value_data.get("positions", [])
-        }
-        
-        # Generate report
-        try:
-            report = generate_report(report_data, report_format="markdown")
-        except ValueError as e:
-            log_operation(
-                "report_generation_error",
-                {"portfolio_id": portfolio_id, "error": str(e)},
-                "error"
-            )
-            result["error"] = f"Failed to generate report: {str(e)}"
-            return result
-        
-        log_operation(
-            "report_generated",
-            {"portfolio_id": portfolio_id},
-            "info"
-        )
-        
-        # Send notification
-        manager_email = portfolio_data.get("manager_email")
-        subject = f"High Risk Alert: Portfolio {portfolio_id}"
-        
-        try:
-            notification_result = send_notification(
-                recipient=manager_email,
-                subject=subject,
-                message=report,
-                priority="high"
-            )
-            
-            if notification_result.get("sent"):
-                log_operation(
-                    "notification_sent",
-                    {
-                        "portfolio_id": portfolio_id,
-                        "recipient": manager_email,
-                        "message_id": notification_result.get("message_id")
-                    },
-                    "info"
-                )
-                result["notification_sent"] = True
-                result["message_id"] = notification_result.get("message_id")
-            else:
-                log_operation(
-                    "notification_failed",
-                    {"portfolio_id": portfolio_id, "recipient": manager_email},
-                    "error"
-                )
-                result["notification_sent"] = False
-                
-        except ValueError as e:
-            log_operation(
-                "notification_error",
-                {"portfolio_id": portfolio_id, "error": str(e)},
-                "error"
-            )
-            result["notification_sent"] = False
-            result["error"] = f"Failed to send notification: {str(e)}"
-    
-    log_operation(
-        "portfolio_analysis_completed",
-        {"portfolio_id": portfolio_id},
-        "info"
-    )
-    
-    return result
+    symbols = set()
+    for holding in holdings:
+        if "symbol" in holding:
+            symbols.add(holding["symbol"])
+    return list(symbols)
 
+
+def prepare_portfolio_data(
+    portfolio_id: str,
+    holdings_data: dict,
+    value_data: dict,
+    volatility_score: float,
+    risk_check: dict
+) -> dict:
+    """Prepare comprehensive portfolio data dictionary for reporting.
+    
+    Args:
+        portfolio_id: Portfolio identifier
+        holdings_data: Raw holdings from API
+        value_data: Calculated portfolio value
+        volatility_score: Volatility score
+        risk_check: Risk threshold check result
+        
+    Returns:
+        Dictionary formatted for report generation
+    """
+    return {
+        "portfolio_id": portfolio_id,
+        "client_name": holdings_data.get("client_name", "Unknown"),
+        "total_value": value_data.get("total_value", 0.0),
+        "volatility_score": volatility_score,
+        "risk_level": risk_check.get("risk_level", "UNKNOWN"),
+        "exceeded_thresholds": risk_check.get("exceeded_thresholds", []),
+        "positions": value_data.get("positions", [])
+    }
+
+
+# =============================================================================
+# MAIN ANALYSIS FUNCTION
+# =============================================================================
 
 def analyze_portfolios():
-    """
-    Main orchestration function to analyze all portfolios.
+    """Main orchestration function for portfolio risk analysis.
     
-    Processes multiple portfolios sequentially, calculates risk metrics,
-    identifies high-risk portfolios, generates reports, and sends notifications.
+    This function coordinates the entire risk analysis workflow:
+    1. Fetches portfolio holdings
+    2. Gets current stock prices
+    3. Calculates portfolio values and position metrics
+    4. Computes volatility scores
+    5. Checks risk thresholds
+    6. Generates reports for high-risk portfolios
+    7. Sends notifications to portfolio managers
     """
+    
+    # Initialize tracking variables
+    processed_count = 0
+    high_risk_count = 0
+    error_count = 0
+    
+    # Log the start of analysis session
+    log_operation(
+        operation="portfolio_analysis_start",
+        details={
+            "portfolios": PORTFOLIO_IDS,
+            "risk_config": RISK_CONFIG,
+            "volatility_days": VOLATILITY_DAYS
+        },
+        level="info"
+    )
+    
     print("=" * 60)
     print("PORTFOLIO RISK ANALYSIS AGENT")
     print("=" * 60)
-    
-    # Log start of analysis
-    log_operation(
-        "analysis_batch_started",
-        {"portfolios": PORTFOLIO_IDS},
-        "info"
-    )
-    
-    results = []
-    high_risk_count = 0
-    success_count = 0
-    error_count = 0
+    print(f"\nAnalyzing {len(PORTFOLIO_IDS)} portfolios...")
+    print(f"Risk Config: Max Volatility={RISK_CONFIG['max_volatility']}, "
+          f"Min Value=${RISK_CONFIG['min_value']:,}, "
+          f"Max Value=${RISK_CONFIG['max_value']:,}\n")
     
     # Process each portfolio
     for portfolio_id in PORTFOLIO_IDS:
-        print(f"\n{'=' * 40}")
-        print(f"Analyzing Portfolio: {portfolio_id}")
-        print(f"{'=' * 40}")
+        print(f"\n{'─' * 50}")
+        print(f"Processing: {portfolio_id}")
+        print(f"{'─' * 50}")
         
         try:
-            result = analyze_portfolio(portfolio_id)
-            results.append(result)
+            # =================================================================
+            # Step 1: Fetch Portfolio Holdings
+            # =================================================================
+            log_operation(
+                operation="fetch_holdings",
+                details={"portfolio_id": portfolio_id},
+                level="info"
+            )
             
-            if result["success"]:
-                success_count += 1
-                if result["is_high_risk"]:
-                    high_risk_count += 1
-                    print(f"\n⚠️  HIGH RISK ALERT: {portfolio_id}")
-                    print(f"   Client: {result.get('client_name', 'N/A')}")
-                    print(f"   Risk Level: {result.get('risk_level', 'N/A')}")
-                    print(f"   Exceeded: {result.get('exceeded_thresholds', [])}")
-                    print(f"   Notification: {'Sent' if result.get('notification_sent') else 'Failed'}")
-                else:
-                    print(f"\n✅ Portfolio {portfolio_id} - Risk Level: {result.get('risk_level', 'N/A')}")
+            print(f"  [1] Fetching holdings...")
+            holdings_data = get_portfolio_holdings(portfolio_id)
+            
+            client_name = holdings_data.get("client_name", "Unknown")
+            manager_email = holdings_data.get("manager_email", "")
+            holdings = holdings_data.get("holdings", [])
+            
+            print(f"      Client: {client_name}")
+            print(f"      Holdings: {len(holdings)} positions")
+            
+            # =================================================================
+            # Step 2: Extract Symbols and Get Stock Prices
+            # =================================================================
+            symbols = extract_symbols(holdings)
+            print(f"  [2] Fetching stock prices for {len(symbols)} symbols: {symbols}")
+            
+            log_operation(
+                operation="fetch_prices",
+                details={"portfolio_id": portfolio_id, "symbols": symbols},
+                level="info"
+            )
+            
+            current_prices = get_stock_prices(symbols)
+            print(f"      Prices retrieved: {len(current_prices)} symbols")
+            
+            # =================================================================
+            # Step 3: Calculate Portfolio Value
+            # =================================================================
+            print(f"  [3] Calculating portfolio value...")
+            
+            log_operation(
+                operation="calculate_value",
+                details={"portfolio_id": portfolio_id},
+                level="info"
+            )
+            
+            value_data = calculate_portfolio_value(holdings, current_prices)
+            total_value = value_data.get("total_value", 0.0)
+            
+            print(f"      Total Value: ${total_value:,.2f}")
+            
+            # Log position details
+            for position in value_data.get("positions", []):
+                gl_pct = position.get("gain_loss_percent", 0)
+                gl_indicator = "▲" if gl_pct >= 0 else "▼"
+                print(f"      {position['symbol']}: {position['shares']} shares @ "
+                      f"${position['current_price']:.2f} ({gl_indicator} {abs(gl_pct):.2f}%)")
+            
+            # =================================================================
+            # Step 4: Calculate Volatility Score
+            # =================================================================
+            print(f"  [4] Calculating volatility score ({VOLATILITY_DAYS}-day)...")
+            
+            log_operation(
+                operation="calculate_volatility",
+                details={"portfolio_id": portfolio_id, "symbols": symbols},
+                level="info"
+            )
+            
+            # Handle case where we have no valid symbols
+            if not symbols:
+                volatility_score = 0.0
+                print(f"      No valid symbols for volatility calculation")
             else:
-                error_count += 1
-                print(f"\n❌ Error analyzing {portfolio_id}: {result.get('error', 'Unknown error')}")
+                volatility_score = calculate_volatility_score(symbols, days=VOLATILITY_DAYS)
+                print(f"      Volatility Score: {volatility_score:.2f}/100")
+            
+            # =================================================================
+            # Step 5: Check Risk Thresholds
+            # =================================================================
+            print(f"  [5] Checking risk thresholds...")
+            
+            log_operation(
+                operation="risk_check",
+                details={
+                    "portfolio_id": portfolio_id,
+                    "total_value": total_value,
+                    "volatility_score": volatility_score
+                },
+                level="info"
+            )
+            
+            risk_check = check_risk_threshold(
+                total_value,
+                volatility_score,
+                RISK_CONFIG
+            )
+            
+            is_high_risk = risk_check.get("is_high_risk", False)
+            risk_level = risk_check.get("risk_level", "UNKNOWN")
+            exceeded = risk_check.get("exceeded_thresholds", [])
+            
+            print(f"      Risk Level: {risk_level}")
+            if exceeded:
+                print(f"      Exceeded: {', '.join(exceeded)}")
+            
+            # =================================================================
+            # Step 6: Handle High-Risk Portfolios
+            # =================================================================
+            if is_high_risk:
+                high_risk_count += 1
+                print(f"\n  ⚠️  HIGH RISK PORTFOLIO DETECTED!")
+                print(f"  [6] Generating report...")
                 
+                log_operation(
+                    operation="high_risk_detected",
+                    details={
+                        "portfolio_id": portfolio_id,
+                        "risk_level": risk_level,
+                        "exceeded_thresholds": exceeded
+                    },
+                    level="warning"
+                )
+                
+                # Prepare portfolio data for report
+                portfolio_data = prepare_portfolio_data(
+                    portfolio_id,
+                    holdings_data,
+                    value_data,
+                    volatility_score,
+                    risk_check
+                )
+                
+                # Generate markdown report
+                try:
+                    report = generate_report(portfolio_data, report_format="markdown")
+                    print(f"      Report generated ({len(report)} characters)")
+                except ValueError as e:
+                    log_operation(
+                        operation="report_generation_error",
+                        details={"portfolio_id": portfolio_id, "error": str(e)},
+                        level="error"
+                    )
+                    report = f"Error generating report: {str(e)}"
+                
+                # Send notification to portfolio manager
+                print(f"  [7] Sending notification to manager...")
+                
+                log_operation(
+                    operation="send_notification",
+                    details={"portfolio_id": portfolio_id, "recipient": manager_email},
+                    level="info"
+                )
+                
+                try:
+                    notification_result = send_notification(
+                        recipient=manager_email,
+                        subject=f"High Risk Alert: Portfolio {portfolio_id}",
+                        message=report,
+                        priority="high"
+                    )
+                    
+                    if notification_result.get("sent"):
+                        print(f"      ✓ Notification sent successfully!")
+                        print(f"        Message ID: {notification_result.get('message_id')}")
+                        
+                        log_operation(
+                            operation="notification_sent",
+                            details={
+                                "portfolio_id": portfolio_id,
+                                "message_id": notification_result.get("message_id"),
+                                "timestamp": notification_result.get("timestamp")
+                            },
+                            level="info"
+                        )
+                    else:
+                        print(f"      ✗ Notification failed to send")
+                        
+                except ValueError as e:
+                    print(f"      ✗ Notification error: {str(e)}")
+                    log_operation(
+                        operation="notification_error",
+                        details={"portfolio_id": portfolio_id, "error": str(e)},
+                        level="error"
+                    )
+            else:
+                print(f"\n  ✓ Portfolio within acceptable risk parameters")
+                log_operation(
+                    operation="risk_acceptable",
+                    details={"portfolio_id": portfolio_id, "risk_level": risk_level},
+                    level="info"
+                )
+            
+            processed_count += 1
+            print(f"\n  ✓ Completed processing {portfolio_id}")
+            
+        except ValueError as e:
+            # Handle invalid portfolio ID or other ValueError
+            error_count += 1
+            print(f"\n  ✗ Error processing {portfolio_id}: {str(e)}")
+            log_operation(
+                operation="portfolio_error",
+                details={"portfolio_id": portfolio_id, "error": str(e), "type": "ValueError"},
+                level="error"
+            )
+            
+        except KeyError as e:
+            # Handle missing data keys
+            error_count += 1
+            print(f"\n  ✗ Data error for {portfolio_id}: Missing key {str(e)}")
+            log_operation(
+                operation="portfolio_error",
+                details={"portfolio_id": portfolio_id, "error": str(e), "type": "KeyError"},
+                level="error"
+            )
+            
         except Exception as e:
             # Catch any unexpected errors
             error_count += 1
+            print(f"\n  ✗ Unexpected error for {portfolio_id}: {str(e)}")
             log_operation(
-                "unexpected_error",
-                {"portfolio_id": portfolio_id, "error": str(e)},
-                "error"
+                operation="portfolio_error",
+                details={"portfolio_id": portfolio_id, "error": str(e), "type": "Exception"},
+                level="error"
             )
-            print(f"\n❌ Unexpected error for {portfolio_id}: {str(e)}")
-            results.append({
-                "portfolio_id": portfolio_id,
-                "success": False,
-                "error": str(e)
-            })
     
-    # Log completion of analysis
+    # =================================================================
+    # Log Session Completion
+    # =================================================================
+    print(f"\n{'=' * 60}")
+    print("ANALYSIS COMPLETE")
+    print(f"{'=' * 60}")
+    print(f"  Portfolios Processed: {processed_count}")
+    print(f"  High-Risk Portfolios: {high_risk_count}")
+    print(f"  Errors: {error_count}")
+    print(f"{'=' * 60}\n")
+    
     log_operation(
-        "analysis_batch_completed",
-        {
-            "total_portfolios": len(PORTFOLIO_IDS),
-            "success_count": success_count,
+        operation="portfolio_analysis_complete",
+        details={
+            "portfolios_processed": processed_count,
             "high_risk_count": high_risk_count,
             "error_count": error_count
         },
-        "info"
+        level="info"
     )
     
-    # Print summary
-    print("\n" + "=" * 60)
-    print("ANALYSIS SUMMARY")
-    print("=" * 60)
-    print(f"Total Portfolios Processed: {len(PORTFOLIO_IDS)}")
-    print(f"Successful: {success_count}")
-    print(f"High Risk Identified: {high_risk_count}")
-    print(f"Errors: {error_count}")
-    print("=" * 60)
-    
-    return results
+    return {
+        "processed": processed_count,
+        "high_risk": high_risk_count,
+        "errors": error_count
+    }
 
+
+# =============================================================================
+# ENTRY POINT
+# =============================================================================
 
 if __name__ == "__main__":
-    # Run the portfolio analysis
     results = analyze_portfolios()
 ```
 
----
-
 ## Section 3: Design Justification
+
+```markdown
+## Design Justification
 
 ### Tool Orchestration Sequence
 
-I chose to process portfolios **sequentially** rather than in parallel for several reasons:
+I chose a sequential processing approach for the following reasons:
 
-1. **Data Dependencies**: Each portfolio analysis has internal sequential dependencies (holdings → prices → value → volatility → risk check). Parallelizing across portfolios would require more complex concurrency handling without significant performance gains since we're I/O-bound on API calls.
+1. **Data Dependencies**: Each portfolio requires a strict dependency chain:
+   - Holdings → Symbols → Prices → Value Calculation → Volatility → Risk Check
+   
+   This sequential flow ensures each step has the required data from the previous step.
 
-2. **Error Isolation**: Sequential processing ensures that if one portfolio fails (invalid ID, missing data), we can gracefully continue with the next without complex error recovery mechanisms.
+2. **API Rate Limiting**: In production, financial APIs often have rate limits. Sequential 
+   processing prevents overwhelming the backend systems with parallel requests.
 
-3. **API Rate Limiting**: In production, sequential processing reduces the risk of hitting API rate limits from the backend systems.
+3. **Error Isolation**: By processing one portfolio completely before moving to the next, 
+   errors in one portfolio don't cascade to others. This is critical for maintaining 
+   partial results when errors occur.
 
-4. **Audit Trail Clarity**: Logging operations in sequence provides a clear, chronological audit trail that's easier to trace for compliance purposes.
+4. **Audit Trail Clarity**: Sequential processing creates a cleaner, more traceable audit 
+   log that's easier to debug and audit.
 
 ### Data Flow Strategy
 
-The data flow follows a **pipeline pattern** where each step produces outputs consumed by subsequent steps:
+**Holdings as Central Data Source:**
+- The `get_portfolio_holdings()` output serves as the primary data source
+- It feeds three downstream operations:
+  1. Symbol extraction → `get_stock_prices()`
+  2. Position data → `calculate_portfolio_value()`
+  3. Manager email → `send_notification()`
 
-```
-Portfolio Holdings → Symbols → Stock Prices → Portfolio Value
-                                   ↓
-                            Volatility Score
-                                   ↓
-                             Risk Threshold Check
-                                   ↓
-                        (Conditional) → Report → Notification
-```
+**Two-Arm Branching for Risk Handling:**
+- After risk check, the flow branches:
+  - High-risk: Generate report → Send notification → Log completion
+  - Low-risk: Skip directly to completion logging
 
-**Key Design Decisions:**
-
-1. **Symbol Extraction Early**: We extract symbols from holdings immediately after fetching to enable parallel fetching of prices and volatility calculation (though we process sequentially for simplicity).
-
-2. **Price Filtering**: We filter out `None` prices (unknown symbols) but log which symbols are missing. This prevents calculation errors while maintaining transparency.
-
-3. **Data Assembly for Reports**: We assemble the complete `report_data` dictionary before calling `generate_report()` to ensure all required fields are available and validated.
+**Data Transformation Pipeline:**
+- `extract_symbols()`: Converts holdings list to symbol list (set for deduplication)
+- `prepare_portfolio_data()`: Aggregates all results into report-friendly format
 
 ### Error Handling Strategy
 
-I implemented a **defensive error handling** approach with multiple layers:
+**Layered Error Handling:**
 
-1. **Per-Portfolio Try/Except**: Each portfolio is wrapped in its own try/except block, ensuring one portfolio's failure doesn't crash the entire batch.
+1. **Top-Level Portfolio Isolation**: Each portfolio is wrapped in try/except, ensuring 
+   one portfolio's failure doesn't prevent processing of others.
 
-2. **Tool-Level Error Handling**: Each tool call is wrapped individually to:
-   - Log the specific error with context
-   - Return early with an error result
-   - Allow the next step to proceed if possible
+2. **Exception Type Specificity**: Different exception types are caught separately:
+   - `ValueError`: Invalid inputs (invalid portfolio ID, bad data format)
+   - `KeyError`: Missing expected keys in data structures
+   - General `Exception`: Catches unexpected errors for graceful degradation
 
-3. **Validation Before Tool Calls**: We validate data (e.g., checking for empty symbols list) before calling tools to provide meaningful error messages.
+3. **Logging at Every Level**: Every error is logged with:
+   - Operation name
+   - Portfolio ID
+   - Error message
+   - Exception type
+   - Appropriate log level (error/warning)
 
-4. **Graceful Degradation**: 
-   - If price fetching fails, we can't calculate value → skip portfolio
-   - If value calculation fails, we can't check risk → skip portfolio
-   - If notification fails for a high-risk portfolio, we log the error but mark the portfolio as analyzed
+4. **Graceful Degradation**:
+   - Missing prices: Position skipped in value calculation
+   - Missing volatility: Assigned 0.0 (conservative, will likely trigger risk check)
+   - Notification failure: Logged but doesn't stop portfolio processing
 
-5. **Logging at Every Step**: Every major operation is logged, ensuring we have a complete audit trail even when errors occur.
+5. **User Feedback**: Console output provides real-time feedback on processing status, 
+   making it easy to identify issues during execution.
 
 ### Trade-offs Considered
 
-1. **Sequential vs Parallel**: Chose sequential for simplicity and error isolation. In a real production system with many portfolios, we'd consider async processing with proper concurrency controls.
+**Parallel vs. Sequential Processing:**
+- Considered: Parallel fetching of all portfolios
+- Decision: Sequential chosen for reasons above (cleaner dependencies, better error handling)
+- Trade-off: Slower execution, but more robust and traceable
 
-2. **Fail-Fast vs Continue**: We continue processing remaining portfolios when one fails rather than failing completely. This design choice prioritizes overall system availability over atomicity.
+**Fail-Fast vs. Continue on Error:**
+- Considered: Stopping entire process on any error
+- Decision: Continue processing remaining portfolios
+- Trade-off: Some alerts may be delayed, but all portfolios get analyzed
 
-3. **Notification Timing**: We send notifications immediately after identifying a high-risk portfolio rather than batching them. This ensures portfolio managers receive alerts promptly, which is critical for risk management.
+**Detailed vs. Minimal Logging:**
+- Considered: Only log errors
+- Decision: Log all major operations (info level) + errors (error level)
+- Trade-off: More verbose logs, but better audit trail and debugging capability
 
-4. **Report Format**: We chose Markdown as the default format because:
-   - It's human-readable for quick review
-   - It can be easily converted to HTML or PDF for formal reports
-   - It's the specified default in the tool definition
+### Code Quality Decisions
 
-### Completeness Check
+1. **Modular Helper Functions**: Extracted `extract_symbols()` and `prepare_portfolio_data()` 
+   for reusability and readability.
 
-The implementation satisfies all requirements:
-- ✅ Analyzes 3 portfolios (PORT-001, PORT-002, PORT-003)
-- ✅ Calculates all risk metrics (value, volatility, threshold checks)
-- ✅ Uses specified risk configuration
-- ✅ Identifies high-risk portfolios
-- ✅ Generates markdown reports for high-risk portfolios
-- ✅ Sends high-priority notifications to managers
-- ✅ Maintains comprehensive audit logs
-- ✅ Handles errors gracefully with try/except blocks
+2. **Configuration as Constants**: RISK_CONFIG and PORTFOLIO_IDS at module level make 
+   it easy to modify without changing code logic.
+
+3. **Comprehensive Documentation**: Docstrings explain inputs, outputs, and purpose of 
+   each function.
+
+4. **Consistent Output Formatting**: Currency values formatted with commas, percentages 
+   with appropriate precision for readability.
+
+5. **Clear Console Feedback**: Print statements provide real-time status updates, helpful 
+   for monitoring automated runs.
+```

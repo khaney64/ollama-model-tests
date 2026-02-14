@@ -1,9 +1,11 @@
-"""GPU monitoring via nvidia-smi polling."""
+"""GPU and CPU monitoring via nvidia-smi and psutil polling."""
 
 import subprocess
 import threading
 import time
 from dataclasses import dataclass, field
+
+import psutil
 
 
 @dataclass
@@ -13,16 +15,19 @@ class GPUSnapshot:
     vram_used_mb: float
     gpu_utilization_pct: float
     temperature_c: float
+    cpu_percent: float
 
 
 @dataclass
 class GPUSummary:
-    """Aggregated GPU metrics from a monitoring session."""
+    """Aggregated GPU and CPU metrics from a monitoring session."""
     peak_vram_mb: float = 0.0
     avg_vram_mb: float = 0.0
     avg_gpu_utilization_pct: float = 0.0
     max_gpu_utilization_pct: float = 0.0
     max_temperature_c: float = 0.0
+    peak_cpu_pct: float = 0.0
+    avg_cpu_pct: float = 0.0
     sample_count: int = 0
 
     def to_dict(self) -> dict:
@@ -32,6 +37,8 @@ class GPUSummary:
             "avg_gpu_utilization_pct": round(self.avg_gpu_utilization_pct, 1),
             "max_gpu_utilization_pct": round(self.max_gpu_utilization_pct, 1),
             "max_temperature_c": round(self.max_temperature_c, 1),
+            "peak_cpu_pct": round(self.peak_cpu_pct, 1),
+            "avg_cpu_pct": round(self.avg_cpu_pct, 1),
             "sample_count": self.sample_count,
         }
 
@@ -61,7 +68,9 @@ class GPUMonitor:
         return self._compute_summary()
 
     def _poll_loop(self):
-        """Continuously poll nvidia-smi until stopped."""
+        """Continuously poll nvidia-smi and CPU until stopped."""
+        # Prime psutil's cpu_percent (first call always returns 0.0)
+        psutil.cpu_percent(interval=None)
         while self._running:
             snapshot = self._query_gpu()
             if snapshot:
@@ -104,11 +113,13 @@ class GPUMonitor:
             if len(parts) != 3:
                 return None
 
+            cpu_pct = psutil.cpu_percent(interval=None)
             return GPUSnapshot(
                 timestamp=time.time(),
                 vram_used_mb=float(parts[0]),
                 gpu_utilization_pct=float(parts[1]),
                 temperature_c=float(parts[2]),
+                cpu_percent=cpu_pct,
             )
         except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
             return None
@@ -121,6 +132,7 @@ class GPUMonitor:
         vram_values = [s.vram_used_mb for s in self._snapshots]
         util_values = [s.gpu_utilization_pct for s in self._snapshots]
         temp_values = [s.temperature_c for s in self._snapshots]
+        cpu_values = [s.cpu_percent for s in self._snapshots]
 
         return GPUSummary(
             peak_vram_mb=max(vram_values),
@@ -128,6 +140,8 @@ class GPUMonitor:
             avg_gpu_utilization_pct=sum(util_values) / len(util_values),
             max_gpu_utilization_pct=max(util_values),
             max_temperature_c=max(temp_values),
+            peak_cpu_pct=max(cpu_values),
+            avg_cpu_pct=sum(cpu_values) / len(cpu_values),
             sample_count=len(self._snapshots),
         )
 
@@ -141,5 +155,7 @@ if __name__ == "__main__":
     print(f"Peak VRAM: {summary.peak_vram_mb} MB")
     print(f"Avg VRAM: {summary.avg_vram_mb} MB")
     print(f"Avg GPU Util: {summary.avg_gpu_utilization_pct}%")
+    print(f"Peak CPU: {summary.peak_cpu_pct}%")
+    print(f"Avg CPU: {summary.avg_cpu_pct}%")
     print(f"Max Temp: {summary.max_temperature_c}°C")
     print(f"Samples: {summary.sample_count}")
