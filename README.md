@@ -4,6 +4,8 @@ Systematic benchmarking of local LLMs via [Ollama](https://ollama.com) against r
 
 Originally built around an **RTX 4070 12GB**, but the framework is hardware-agnostic: it runs on CPU-only machines, any NVIDIA GPU, or cloud model endpoints. The default model list and context sizes are tuned for 12GB VRAM — see [Customizing Models](#customizing-models) to adapt them for your hardware.
 
+> **TL;DR** — Already ran the benchmarks? See [Model Recommendations](reports/recommendations.md) for the final picks (spoiler: qwen3 family dominates).
+
 ## Quick Start
 
 ```bash
