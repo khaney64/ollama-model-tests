@@ -1,0 +1,65 @@
+{
+  "model": "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0",
+  "task": "agentic-chat",
+  "wall_clock_s": 87.44,
+  "num_ctx": 16384,
+  "num_predict": 16384,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-18T17:31:24.712667",
+  "timing": {
+    "total_duration_s": 87.42,
+    "prompt_eval_duration_s": 1.51,
+    "eval_duration_s": 82.14
+  },
+  "tokens": {
+    "prompt_eval_count": 28103,
+    "eval_count": 4059,
+    "prompt_eval_tokens_per_sec": 18582.48,
+    "eval_tokens_per_sec": 49.42
+  },
+  "chat": {
+    "total_turns": 7,
+    "total_tool_calls": 18,
+    "successful_tool_calls": 18,
+    "tool_call_success_rate": 1.0,
+    "tools_used": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation"
+    ],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.75,
+    "failure_classification": {
+      "classification": "success",
+      "description": "Made 18 tool calls using 6 tools, completed with final response"
+    }
+  },
+  "gpu": {
+    "peak_vram_mb": 11535.0,
+    "avg_vram_mb": 11288.3,
+    "avg_gpu_utilization_pct": 93.2,
+    "max_gpu_utilization_pct": 99.0,
+    "max_temperature_c": 63.0,
+    "peak_cpu_pct": 25.2,
+    "avg_cpu_pct": 13.9,
+    "sample_count": 83
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

@@ -40,14 +40,14 @@ MODELS = [
     "phi4:14b-q4_K_M",
     "llama3.1:8b-instruct-q4_K_M",
     "llama3.2:latest",
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q6_K",
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0",
     # Tier 2: Tight fit (9-11GB)
     "qwen3:14b",
     "qwen2.5-coder:14b-instruct-q4_K_M",
     "deepseek-coder-v2:16b",
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M",
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M",
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M",
     # Tier 4: Cloud models
     "kimi-k2.5:cloud",
     "glm-4.7:cloud",
@@ -69,8 +69,8 @@ MODELS_TO_PULL = [
     "gemma3:12b-it-q4_K_M",
     "gemma2:9b-instruct-q4_K_M",
     "mistral:7b-instruct-v0.3-q5_K_M",
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M",
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M",
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q6_K",
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0",
 ]
 
 # Context sizes per model (num_ctx for Ollama API)
@@ -87,14 +87,14 @@ MODEL_NUM_CTX = {
     "phi4:14b-q4_K_M": 8192,
     "llama3.1:8b-instruct-q4_K_M": 8192,
     "llama3.2:latest": 8192,
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q6_K": 8192,
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0": 8192,
     # Tier 2: Tight fit
     "qwen3:14b": 4096,
     "qwen2.5-coder:14b-instruct-q4_K_M": 4096,
     "deepseek-coder-v2:16b": 4096,
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M": 4096,
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M": 4096,
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M": 4096,
     # Cloud models (no VRAM constraint)
     "kimi-k2.5:cloud": 32768,
     "glm-4.7:cloud": 32768,
@@ -143,14 +143,14 @@ MODEL_META = {
     "phi4:14b-q4_K_M": (1, 9.1),
     "llama3.1:8b-instruct-q4_K_M": (1, 4.9),
     "llama3.2:latest": (1, 2.0),
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q6_K": (1, 6.6),
+    "hf.co/Qwen/Qwen3-8B-GGUF:Q8_0": (1, 8.5),
     # Tier 2: Tight fit
     "qwen3:14b": (2, 9.3),
     "qwen2.5-coder:14b-instruct-q4_K_M": (2, 9.0),
     "deepseek-coder-v2:16b": (2, 10.0),
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M": (3, 19.0),
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M": (3, 11.6),
-    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M": (3, 11.7),
     # Tier 4: Cloud
     "kimi-k2.5:cloud": (4, 0),
     "glm-4.7:cloud": (4, 0),

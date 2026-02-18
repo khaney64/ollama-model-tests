@@ -9,8 +9,8 @@ with occasional coding subtasks.
 > **Critical caveat: Structured tool calling is the gating factor, not text benchmarks.**
 >
 > The `agentic-chat` task tests structured tool calling via `/api/chat` -- the actual
-> protocol OpenClaw uses. Of 16 local models tested, **only 4 can produce any structured
-> tool calls at all**. The other 12 -- including models that score A on text-based agentic
+> protocol OpenClaw uses. Of 18 local models tested (16 unique architectures + 2 quantization variants), **only 4
+> model families can produce any structured tool calls at all**. The other 12 -- including models that score A on text-based agentic
 > benchmarks -- fail silently: they return empty responses, stall, or describe tool calls
 > in prose without producing the JSON wire format. A model that can't make structured
 > tool_calls is useless for OpenClaw regardless of how well it writes code.
@@ -38,15 +38,16 @@ All 5 cloud models scored A or B on the agentic task and A on engine:
 Cloud models set the quality bar. The best local models approach but don't quite match
 the top cloud scores, especially on agentic tasks.
 
-### Agentic-Chat Results (28 Evaluations, 4 Context Sizes)
+### Agentic-Chat Results (32 Evaluations, 4 Context Sizes)
 
 The agentic-chat task runs multi-turn structured tool calling against 8 portfolio analysis
 tools. Models were tested at ctx-8192, ctx-10240, ctx-16384, and ctx-32768 (where supported).
+Two additional qwen3:8b quantization variants (Q6_K and Q8_0) were tested at ctx-10240/16384.
 
-**Grade distribution:** 13 A, 2 B, 1 D, 12 F
+**Grade distribution:** 17 A, 2 B, 1 D, 12 F
 
 **Outcome classification:**
-- **Success** (structured tool calls, completed): 14 evaluations
+- **Success** (structured tool calls, completed): 18 evaluations
 - **Partial Success** (tool calls but incomplete): 2 evaluations
 - **Text Narration** (described tools in prose, 0 structured calls): 6 evaluations
 - **Empty Response** (no tokens, instant return): 4 evaluations
@@ -57,7 +58,9 @@ tools. Models were tested at ctx-8192, ctx-10240, ctx-16384, and ctx-32768 (wher
 | Model | ctx-8192 | ctx-10240 | ctx-16384 | ctx-32768 | Best |
 |-------|----------|-----------|-----------|-----------|------|
 | glm-4.7-flash:q4_K_M | A (10.0) | A (9.8) | A (10.0) | A (10.0) | 10.0 |
-| qwen3:8b | A (10.0) | A (9.0) | A (10.0) | A (10.0) | 10.0 |
+| qwen3:8b (Q4_K_M) | A (10.0) | A (9.0) | A (10.0) | A (10.0) | 10.0 |
+| qwen3:8b Q6_K | - | A (10.0) | A (10.0) | - | 10.0 |
+| qwen3:8b Q8_0 | - | A (10.0) | A (10.0) | - | 10.0 |
 | qwen3:14b | A (9.8) | A (10.0) | A (10.0) | A (10.0) | 10.0 |
 | llama3.2:latest | B (8.8) | A (9.1) | B (8.4) | D (6.9) | 9.1 |
 
@@ -95,7 +98,9 @@ The 7-8B models are largely unaffected.
 | llama3.2:latest | 2.0 GB | 167 | 167 | ~0% | Yes (5.9 GB) |
 | qwen2.5-coder:7b | 4.7 GB | 88 | 89 | ~0% | Yes (6.5 GB) |
 | qwen2.5-coder:7b-instruct-q5_K_M | 5.4 GB | 79 | 78 | ~0% | Yes (8.0 GB) |
-| qwen3:8b | 5.2 GB | 72 | 71 | ~1% | Yes (9.0 GB) |
+| qwen3:8b (Q4_K_M) | 5.2 GB | 72 | 71 | ~1% | Yes (9.0 GB) |
+| qwen3:8b Q6_K | 6.6 GB | - | 59 | N/A | Marginal (10.5 GB) |
+| qwen3:8b Q8_0 | 8.5 GB | - | 49 | N/A | Marginal (11.5 GB) |
 | mistral:7b-instruct-v0.3-q5_K_M | 5.1 GB | 77 | 77 | ~0% | Yes (8.9 GB) |
 | llama3.1:8b | 4.9 GB | 83 | 84 | ~0% | Yes (8.5 GB) |
 | llama3.1:8b-instruct-q4_K_M | 4.9 GB | 83 | 84 | ~0% | Yes (8.0 GB) |
@@ -117,12 +122,14 @@ Agentic-chat speeds differ from text-generation speeds because they reflect mult
 conversations with tool dispatch overhead. These numbers represent the generation speed
 during active inference.
 
-| Model | ctx-8192 | ctx-10240 | ctx-16384 | ctx-32768 | Notes |
-|-------|----------|-----------|-----------|-----------|-------|
-| llama3.2:latest | 172 | 173 | 177 | 179 | Fastest, but low quality |
-| qwen3:8b | 74 | 70 | 73 | 71 | Fast, perfect quality |
-| qwen3:14b | 42 | 29 | 23 | 11 | Slows significantly at 32K |
-| glm-4.7-flash:q4_K_M | 15 | 14 | 13 | 9 | Slow (CPU spillover) but perfect quality |
+| Model | Size | ctx-8192 | ctx-10240 | ctx-16384 | ctx-32768 | Notes |
+|-------|------|----------|-----------|-----------|-----------|-------|
+| llama3.2:latest | 2.0 GB | 172 | 173 | 177 | 179 | Fastest, but low quality |
+| qwen3:8b (Q4_K_M) | 5.2 GB | 74 | 70 | 73 | 71 | Fast, perfect quality |
+| qwen3:8b Q6_K | 6.6 GB | - | 60 | 59 | - | 17% slower than Q4, same quality |
+| qwen3:8b Q8_0 | 8.5 GB | - | 49 | 49 | - | 32% slower than Q4, same quality |
+| qwen3:14b | 9.3 GB | 42 | 29 | 23 | 11 | Slows significantly at 32K |
+| glm-4.7-flash:q4_K_M | 19.0 GB | 15 | 14 | 13 | 9 | Slow (CPU spillover) but perfect quality |
 
 ### CPU Spillover Evidence
 
@@ -150,17 +157,52 @@ during active inference.
    potential compared to 8K context. This partial-offload penalty is expected behavior
    for a 12GB card running 14B models at large contexts.
 
+### Quantization Impact: qwen3:8b Variants (Q4_K_M vs Q6_K vs Q8_0)
+
+Three quantization levels of qwen3:8b were tested on agentic-chat to determine whether
+higher precision improves tool-calling quality. **It does not.**
+
+| Variant | Size | ctx-10240 | ctx-16384 | tok/s (10K) | tok/s (16K) | VRAM (10K) | VRAM (16K) |
+|---------|------|-----------|-----------|-------------|-------------|------------|------------|
+| Q4_K_M (default) | 5.2 GB | A (9.0) | A (10.0) | 70 | 73 | 8.4 GB | 9.3 GB |
+| Q6_K | 6.6 GB | A (10.0) | A (10.0) | 60 | 59 | 11.7 GB | 10.5 GB |
+| Q8_0 | 8.5 GB | A (10.0) | A (10.0) | 49 | 49 | 11.3 GB | 11.5 GB |
+
+**Key findings:**
+
+1. **Quality is identical.** All three variants achieve perfect 10.0 on agentic-chat at
+   ctx-16384, with 100% tool call success rates, correct ordering, and full portfolio
+   coverage. The Q6_K at 16K even used 7/8 tools (including generate_report) -- but this
+   is run-to-run variation, not a quantization effect.
+
+2. **Higher quant = slower.** Q6_K is ~17% slower than Q4_K_M; Q8_0 is ~32% slower.
+   The extra precision adds compute cost per token without improving output quality.
+
+3. **Higher quant = more VRAM, killing 32K viability.** Q8_0 at ctx-16384 already uses
+   11.5 GB -- at 32K it would blow past 12 GB and require heavy CPU spillover, negating
+   the GPU advantage entirely. Q6_K is similarly constrained. Only the Q4_K_M (5.2 GB)
+   leaves enough VRAM headroom for 32K context (11.6 GB at 32K, still fully in VRAM).
+
+4. **Q4_K_M's ctx-10240 anomaly (9.0 vs 10.0) is not a quantization issue.** The Q4_K_M
+   scored 9.0 at ctx-10240 due to a missing final text response (partial_success), while
+   Q6_K and Q8_0 scored 10.0. But Q4_K_M scores 10.0 at three other context sizes. This
+   is a one-off run variation, not evidence that higher quantization helps.
+
+**Bottom line:** Stick with Q4_K_M. Higher quantization buys nothing for structured tool
+calling while sacrificing speed and 32K context viability -- the two things that make
+qwen3:8b the top recommendation in the first place.
+
 ---
 
 ## Recommended Models for OpenClaw
 
-**OpenClaw requires structured tool calling.** Only 4 of 16 tested local models can
+**OpenClaw requires structured tool calling.** Only 4 of 16 tested model families can
 produce structured tool_calls via `/api/chat`. The recommendations below are filtered
 to this viable set, then ranked by combined agentic-chat + engine + speed performance.
 
 ### Tier 1: Top Picks
 
-#### qwen3:8b - BEST OVERALL FOR OPENCLAW
+#### qwen3:8b (Q4_K_M) - BEST OVERALL FOR OPENCLAW
 - **Agentic-Chat:** A (10.0) at ctx-8192/16384/32768; A (9.0) at ctx-10240
 - **Agentic (text):** A (9.7) at 10K; B (8.8) at 8K/16K
 - **Engine:** A (9.9) at 10K/16K
@@ -176,6 +218,10 @@ to this viable set, then ranked by combined agentic-chat + engine + speed perfor
 - **32K VRAM note:** At 32K context, VRAM usage jumps from 9.3 GB (16K) to 11.6 GB.
   This is close to the 12GB limit but still fits entirely in VRAM with no CPU spillover,
   which is why speed doesn't degrade.
+- **Quantization tested:** Q6_K (6.6 GB) and Q8_0 (8.5 GB) variants scored identical
+  10.0 on agentic-chat but are 17% and 32% slower respectively, and cannot fit 32K
+  context in VRAM. Q4_K_M is the right quantization for this card. See "Quantization
+  Impact" section above.
 - **CPU agentic:** A (9.1)
 
 #### qwen3:14b - HIGHEST QUALITY, TOO SLOW AT 32K
@@ -328,6 +374,7 @@ underutilizing the window.
 ---
 
 *Analysis based on automated benchmark reports from cpu, gpu (ctx-8192/10240/16384/32768),
-and cloud modes. Agentic-chat evaluation is 100% automated (structured calls are machine-
-checkable). Agentic (text) manual review sections use placeholder 50% scores. Engine
-evaluation is fully automated.*
+and cloud modes. Includes quantization comparison (Q4_K_M/Q6_K/Q8_0) for qwen3:8b.
+Agentic-chat evaluation is 100% automated (structured calls are machine-checkable).
+Agentic (text) manual review sections use placeholder 50% scores. Engine evaluation
+is fully automated.*
