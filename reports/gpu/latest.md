@@ -1,9 +1,9 @@
 # Ollama Model Benchmark Report (GPU Mode)
 
-Generated: 2026-02-14 10:17:40
+Generated: 2026-02-17 16:10:03
 
 Execution mode: gpu
-Models tested: 14
+Models tested: 16
 Tasks: greenfield, refactor, engine, api, agentic
 
 ---
@@ -46,6 +46,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `glm-4.7-flash:q4_K_M` | api (ctx-8192) | 8192 | 8192 | 18 | WARNING | Hit context limit (8192). Output likely truncated. |
 | `glm-4.7-flash:q4_K_M` | api (ctx-8192) | 8192 | 8192 | 18 | WARNING | Hit num_predict limit (8192). Output likely truncated — consider increasing --num-predict. |
 | `glm-4.7-flash:q4_K_M` | agentic (ctx-16384) | 16384 | 16384 | 18 | ERROR | HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=1200) |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | refactor (ctx-16384) | 16384 | 16384 | - | WARNING | Used 95% of context. Output may be truncated. |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | refactor (ctx-16384) | 16384 | 16384 | - | WARNING | Used 93% of context. Output may be truncated. |
 
 ## Generation Speed (tokens/sec)
 
@@ -65,6 +67,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | 42.06 | 23.34 | 43.68 | 41.7 | 23.02 | 42.67 | 42.26 | 22.41 | 42.2 | 41.35 | 22.44 | 40.64 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | 22.1 | 15.48 | 28.66 | 22.94 | 16.49 | 29.49 | 22.99 | 16.32 | 29.55 | 20.29 | 11.45 | 27.23 |
 | `glm-4.7-flash:q4_K_M` | 8.57 | - | 8.94 | 11.08 | 10.23 | 9.09 | 10.95 | 10.61 | 11.08 | - | - | 6.95 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | - | 28.05 | - | - | 27.82 | - | - | 28.46 | - | - | 26.38 | - |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | - | 28.78 | - | - | 28.67 | - | - | 29.33 | - | - | 26.25 | - |
 
 ## Peak VRAM Usage (MB)
 
@@ -84,6 +88,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | 9.3 | 11494.0 | 11565.0 | 11210.0 | 11496.0 | 11560.0 | 11208.0 | 11505.0 | 11553.0 | 11208.0 | 11497.0 | 11553.0 | 11215.0 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | 9.0 | 11282.0 | 10721.0 | 11357.0 | 11282.0 | 10720.0 | 11357.0 | 11282.0 | 10721.0 | 11357.0 | 11282.0 | 10720.0 | 11357.0 |
 | `glm-4.7-flash:q4_K_M` | 19.0 | 11558.0 | 11725.0 | 11541.0 | 11558.0 | 11303.0 | 11540.0 | 11556.0 | 11717.0 | 11528.0 | 11563.0 | 11731.0 | 11540.0 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | 11.7 | - | 11636.0 | - | - | 11625.0 | - | - | 11629.0 | - | - | 11698.0 | - |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | 11.6 | - | 11720.0 | - | - | 11536.0 | - | - | 11666.0 | - | - | 11573.0 | - |
 
 ## Total Generation Time (seconds)
 
@@ -103,6 +109,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | 143.06 | 134.38 | 59.73 | 249.68 | 371.68 | 196.12 | 197.01 | 437.03 | 192.77 | 98.35 | 175.31 | 125.55 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | 69.96 | 95.67 | 52.87 | 76.58 | 102.17 | 64.83 | 33.63 | 49.12 | 32.32 | 228.32 | 416.46 | 149.02 |
 | `glm-4.7-flash:q4_K_M` | 517.04 | 1200.03 | 487.62 | 491.02 | 533.63 | 909.54 | 440.8 | 475.74 | 439.63 | 1200.02 | 1200.02 | 824.96 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | - | 205.43 | - | - | 386.36 | - | - | 167.56 | - | - | 594.68 | - |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | - | 279.3 | - | - | 275.33 | - | - | 176.73 | - | - | 582.08 | - |
 
 ## Rankings by Generation Speed
 
@@ -134,10 +142,12 @@ Tasks: greenfield, refactor, engine, api, agentic
 7. `qwen3:8b` - 71.09 tok/s
 8. `gemma2:9b-instruct-q4_K_M` - 60.04 tok/s
 9. `gemma3:12b-it-q4_K_M` - 50.26 tok/s
-10. `qwen3:14b` - 23.34 tok/s
-11. `qwen2.5-coder:14b-instruct-q4_K_M` - 15.48 tok/s
-12. `phi4:14b-q4_K_M` - 11.88 tok/s
-13. `deepseek-coder-v2:16b` - 11.48 tok/s
+10. `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` - 28.78 tok/s
+11. `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` - 28.05 tok/s
+12. `qwen3:14b` - 23.34 tok/s
+13. `qwen2.5-coder:14b-instruct-q4_K_M` - 15.48 tok/s
+14. `phi4:14b-q4_K_M` - 11.88 tok/s
+15. `deepseek-coder-v2:16b` - 11.48 tok/s
 
 ### Agentic (ctx-8192)
 
@@ -184,11 +194,13 @@ Tasks: greenfield, refactor, engine, api, agentic
 7. `qwen3:8b` - 70.79 tok/s
 8. `gemma2:9b-instruct-q4_K_M` - 66.7 tok/s
 9. `gemma3:12b-it-q4_K_M` - 51.97 tok/s
-10. `deepseek-coder-v2:16b` - 23.35 tok/s
-11. `qwen3:14b` - 23.02 tok/s
-12. `qwen2.5-coder:14b-instruct-q4_K_M` - 16.49 tok/s
-13. `phi4:14b-q4_K_M` - 13.02 tok/s
-14. `glm-4.7-flash:q4_K_M` - 10.23 tok/s
+10. `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` - 28.67 tok/s
+11. `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` - 27.82 tok/s
+12. `deepseek-coder-v2:16b` - 23.35 tok/s
+13. `qwen3:14b` - 23.02 tok/s
+14. `qwen2.5-coder:14b-instruct-q4_K_M` - 16.49 tok/s
+15. `phi4:14b-q4_K_M` - 13.02 tok/s
+16. `glm-4.7-flash:q4_K_M` - 10.23 tok/s
 
 ### Api (ctx-8192)
 
@@ -235,11 +247,13 @@ Tasks: greenfield, refactor, engine, api, agentic
 7. `qwen3:8b` - 70.03 tok/s
 8. `gemma2:9b-instruct-q4_K_M` - 65.07 tok/s
 9. `gemma3:12b-it-q4_K_M` - 51.48 tok/s
-10. `qwen3:14b` - 22.41 tok/s
-11. `deepseek-coder-v2:16b` - 17.94 tok/s
-12. `qwen2.5-coder:14b-instruct-q4_K_M` - 16.32 tok/s
-13. `phi4:14b-q4_K_M` - 12.97 tok/s
-14. `glm-4.7-flash:q4_K_M` - 10.61 tok/s
+10. `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` - 29.33 tok/s
+11. `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` - 28.46 tok/s
+12. `qwen3:14b` - 22.41 tok/s
+13. `deepseek-coder-v2:16b` - 17.94 tok/s
+14. `qwen2.5-coder:14b-instruct-q4_K_M` - 16.32 tok/s
+15. `phi4:14b-q4_K_M` - 12.97 tok/s
+16. `glm-4.7-flash:q4_K_M` - 10.61 tok/s
 
 ### Engine (ctx-8192)
 
@@ -285,10 +299,12 @@ Tasks: greenfield, refactor, engine, api, agentic
 7. `qwen3:8b` - 66.42 tok/s
 8. `gemma2:9b-instruct-q4_K_M` - 55.61 tok/s
 9. `gemma3:12b-it-q4_K_M` - 49.93 tok/s
-10. `qwen3:14b` - 22.44 tok/s
-11. `qwen2.5-coder:14b-instruct-q4_K_M` - 11.45 tok/s
-12. `phi4:14b-q4_K_M` - 9.95 tok/s
-13. `deepseek-coder-v2:16b` - 5.63 tok/s
+10. `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` - 26.38 tok/s
+11. `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` - 26.25 tok/s
+12. `qwen3:14b` - 22.44 tok/s
+13. `qwen2.5-coder:14b-instruct-q4_K_M` - 11.45 tok/s
+14. `phi4:14b-q4_K_M` - 9.95 tok/s
+15. `deepseek-coder-v2:16b` - 5.63 tok/s
 
 ### Refactor (ctx-8192)
 
@@ -349,6 +365,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | /10 | /10 | /10 | /10 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | /10 | /10 | /10 | /10 |
 | `glm-4.7-flash:q4_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | /10 | /10 | /10 | /10 |
 
 ### Agentic (ctx-8192)
 
@@ -406,6 +424,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | /10 | /10 | /10 | /10 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | /10 | /10 | /10 | /10 |
 | `glm-4.7-flash:q4_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | /10 | /10 | /10 | /10 |
 
 ### Api (ctx-8192)
 
@@ -463,6 +483,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | /10 | /10 | /10 | /10 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | /10 | /10 | /10 | /10 |
 | `glm-4.7-flash:q4_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | /10 | /10 | /10 | /10 |
 
 ### Engine (ctx-8192)
 
@@ -520,6 +542,8 @@ Tasks: greenfield, refactor, engine, api, agentic
 | `qwen3:14b` | /10 | /10 | /10 | /10 |
 | `qwen2.5-coder:14b-instruct-q4_K_M` | /10 | /10 | /10 | /10 |
 | `glm-4.7-flash:q4_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M` | /10 | /10 | /10 | /10 |
+| `hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M` | /10 | /10 | /10 | /10 |
 
 ### Refactor (ctx-8192)
 

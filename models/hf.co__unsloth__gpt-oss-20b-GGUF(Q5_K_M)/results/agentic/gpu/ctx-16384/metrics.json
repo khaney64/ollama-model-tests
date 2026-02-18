@@ -1,0 +1,36 @@
+{
+  "model": "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M",
+  "timing": {
+    "total_duration_s": 205.43,
+    "load_duration_s": 2.68,
+    "prompt_eval_duration_s": 0.98,
+    "eval_duration_s": 135.91
+  },
+  "tokens": {
+    "prompt_eval_count": 2953,
+    "eval_count": 3812,
+    "prompt_eval_tokens_per_sec": 3001.6,
+    "eval_tokens_per_sec": 28.05
+  },
+  "gpu": {
+    "peak_vram_mb": 11636.0,
+    "avg_vram_mb": 11526.6,
+    "avg_gpu_utilization_pct": 35.5,
+    "max_gpu_utilization_pct": 74.0,
+    "max_temperature_c": 39.0,
+    "peak_cpu_pct": 30.4,
+    "avg_cpu_pct": 20.0,
+    "sample_count": 195
+  },
+  "task": "agentic",
+  "wall_clock_s": 205.45,
+  "num_ctx": 16384,
+  "num_predict": 16384,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-17T15:36:42.979786",
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

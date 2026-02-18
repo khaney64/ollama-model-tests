@@ -1,6 +1,6 @@
 # Model Recommendations for OpenClaw GPU Usage (RTX 4070 12GB)
 
-Generated: 2026-02-14
+Generated: 2026-02-17
 
 Context: Recommendations for using local Ollama models via OpenClaw at 16K+ context,
 prioritizing agentic capabilities with occasional coding subtasks.
@@ -24,12 +24,12 @@ All 5 cloud models scored A or B on the agentic task and A on engine:
 Cloud models set the quality bar. The best local models approach but don't quite match
 the top cloud scores, especially on agentic tasks.
 
-### GPU Mode (14 Local Models, 3 Context Sizes)
+### GPU Mode (16 Local Models, 3 Context Sizes)
 
-42 agentic evaluations, 42 engine evaluations across ctx-8192, ctx-10240, ctx-16384.
+44 agentic evaluations, 44 engine evaluations across ctx-8192, ctx-10240, ctx-16384.
 
-**Agentic grade distribution:** 10 A, 24 B, 6 C, 1 D, 1 N/A (timeout)
-**Engine grade distribution:** 17 A, 7 B, 4 D, 14 F
+**Agentic grade distribution:** 12 A, 24 B, 6 C, 1 D, 1 N/A (timeout)
+**Engine grade distribution:** 18 A, 7 B, 4 D, 15 F
 
 ### CPU Mode (14 Local Models, Default Context)
 
@@ -62,6 +62,9 @@ The 7-8B models are largely unaffected.
 | qwen3:14b | 9.3 GB | 44 | **23** | **~47%** | Marginal (11.6 GB) |
 | qwen2.5-coder:14b-instruct-q4_K_M | 9.0 GB | 29 | **15** | **~47%** | Marginal (10.7 GB) |
 | deepseek-coder-v2:16b | 10.0 GB | 25 | **11** | **~55%** | Marginal (11.7 GB) |
+| **20B Models** | | | | | |
+| gpt-oss-20b Q5_K_M | 11.7 GB | - | **28** | N/A (16K only) | Marginal (11.6 GB) |
+| gpt-oss-20b Q4_K_M | 11.6 GB | - | **29** | N/A (16K only) | Marginal (11.7 GB) |
 | glm-4.7-flash:q4_K_M | 19.0 GB | 9 | Timeout | **N/A** | **No** (11.7 GB) |
 
 ### CPU Spillover Evidence
@@ -105,6 +108,30 @@ The 7-8B models are largely unaffected.
 - **Tradeoff:** Half the speed of 7B models at 16K due to VRAM pressure. Worth it for
   the quality gap, especially for agentic primary use.
 - **CPU agentic:** A (9.5) -- proves the model quality, not just a context size fluke
+
+#### gpt-oss-20b (Q4_K_M) - BEST NEW CONTENDER
+- **Agentic:** A (9.1) at 16K
+- **Engine:** A (9.8) at 16K
+- **Speed at 16K:** 29 tok/s (faster than qwen3:14b despite being a larger model)
+- **VRAM:** 11.7 GB (tight but works)
+- **Why:** Excellent across both tasks at 16K. Scores A on engine (9.8, tied for #7 overall)
+  and A on agentic (9.1). Runs 26% faster than qwen3:14b at 16K context despite having
+  more parameters. Strong all-rounder that doesn't sacrifice speed for quality.
+- **Note:** Only tested at 16K context (no 8K/10K runs). The Q5_K_M quant scored even
+  higher on agentic (9.8, #2 overall) but had a syntax error on engine (F). The Q4_K_M
+  is the safer pick for reliable dual-task performance.
+
+#### gpt-oss-20b (Q5_K_M) - NEAR-PERFECT AGENTIC
+- **Agentic:** A (9.8) at 16K -- **#2 overall**, just behind qwen3:14b's perfect 10.0
+- **Engine:** F (4.5) at 16K -- syntax error in generated code (likely a fluke)
+- **Speed at 16K:** 28 tok/s (faster than qwen3:14b)
+- **VRAM:** 11.6 GB (tight but works)
+- **Why:** Second-highest agentic score among all local models. Perfect tool coverage,
+  execution, error handling, and logging. The engine failure was a single syntax error
+  (mismatched parenthesis on line 127), not a fundamental capability issue -- correctness
+  and edge case scores were both 10/10. If agentic is your primary concern and you can
+  tolerate occasional engine hiccups, this quant edges out Q4_K_M on planning quality.
+- **Tradeoff:** Engine unreliability at this quant level. Use Q4_K_M if you need both tasks.
 
 #### qwen3:8b - BEST SPEED/QUALITY RATIO
 - **Agentic:** A (9.7) at 10K; B (8.8) at 16K and 8K
@@ -203,12 +230,18 @@ The 7-8B models are largely unaffected.
 > **qwen3:14b** -- Perfect agentic score at 16K. Accept the ~23 tok/s speed for the
 > quality gain. Best for complex planning, tool orchestration, and multi-step reasoning.
 
+**Alternative Primary (Faster, Nearly As Good):**
+> **gpt-oss-20b Q4_K_M** -- A (9.1) agentic + A (9.8) engine at 16K, running at
+> 29 tok/s (26% faster than qwen3:14b). Best all-rounder if you want strong quality
+> on both tasks without the speed penalty. Or use **Q5_K_M** if agentic is the sole
+> priority (9.8 agentic, but engine is unreliable).
+
 **Fast Subtask Agent (Coding):**
 > **qwen3:8b** or **qwen2.5-coder:7b-instruct-q5_K_M** -- Both run at 70-78 tok/s
 > at 16K with strong engine/coding scores. Use qwen3:8b for general subtasks,
 > qwen2.5-coder for code-specific work.
 
-**Alternative Primary (If Speed Matters More):**
+**Alternative Primary (If Speed Matters Most):**
 > **qwen3:8b** -- Nearly as good on agentic (A at 10K, B at 16K) at 3x the speed of
 > qwen3:14b. Best compromise if 23 tok/s feels too slow for interactive use.
 
@@ -216,18 +249,23 @@ The 7-8B models are largely unaffected.
 
 ```
 Primary Agent:    qwen3:14b      @ 16K context (quality-first orchestration)
+  - or -         gpt-oss-20b Q4_K_M @ 16K context (faster, strong on both tasks)
 Coding Subtask:   qwen2.5-coder:7b-instruct-q5_K_M @ 16K context (fast, code-focused)
 General Subtask:  qwen3:8b       @ 16K context (fast, versatile)
 ```
 
 ### Key Insight
 
-The qwen3 family dominates both agentic and engine tasks across all modes. The 14B
-variant is the clear agentic champion, while the 8B variant offers the best
-speed-to-quality ratio. The qwen2.5-coder models fill the coding niche well.
-All other model families tested (llama, gemma, mistral, deepseek, glm) are either
-too slow, too inconsistent, or too low quality at 16K context to recommend for
-OpenClaw use on the RTX 4070 12GB.
+The qwen3 family and gpt-oss-20b dominate at 16K context. qwen3:14b remains the
+agentic champion with a perfect 10.0, but gpt-oss-20b (Q4_K_M) is the strongest
+new entrant -- scoring A on both agentic (9.1) and engine (9.8) while running 26%
+faster than qwen3:14b. The Q5_K_M quant nearly matches qwen3:14b on agentic (9.8
+vs 10.0) but had an engine syntax error. For pure agentic work, qwen3:14b or
+gpt-oss-20b Q5_K_M; for balanced agentic+engine, gpt-oss-20b Q4_K_M; for speed,
+qwen3:8b. The qwen2.5-coder models fill the coding niche well. All other model
+families tested (llama, gemma, mistral, deepseek, glm) are either too slow, too
+inconsistent, or too low quality at 16K context to recommend for OpenClaw use on
+the RTX 4070 12GB.
 
 ---
 

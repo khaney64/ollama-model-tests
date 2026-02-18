@@ -1,13 +1,13 @@
 # Agentic Task Implementation Report Card
 
-Generated: 2026-02-14 10:17:48
+Generated: 2026-02-17 16:10:22
 
 ## Executive Summary
 
-Evaluated **42** agentic task implementations against the requirements in `requirements/agentic.md`.
+Evaluated **44** agentic task implementations against the requirements in `requirements/agentic.md`.
 
 **Grade Distribution:**
-- A: 10 model(s)
+- A: 12 model(s)
 - B: 24 model(s)
 - C: 6 model(s)
 - D: 1 model(s)
@@ -22,47 +22,49 @@ Evaluated **42** agentic task implementations against the requirements in `requi
 | Rank | Model | Grade | Total | Automated (70%) | Manual* (30%) | Pass |
 |------|-------|-------|-------|-----------------|---------------|------|
 | 1 | qwen3(14b) (ctx-16384) | A | 10.0 | 7.0 | 3.0 | ✓ |
-| 2 | qwen3(8b) (ctx-10240) | A | 9.7 | 6.7 | 3.0 | ✓ |
-| 3 | qwen3(14b) (ctx-8192) | A | 9.5 | 6.5 | 3.0 | ✓ |
-| 4 | qwen3(14b) (ctx-10240) | A | 9.3 | 6.3 | 3.0 | ✓ |
-| 5 | gemma3(12b-it-q4_K_M) (ctx-16384) | A | 9.2 | 6.2 | 3.0 | ✓ |
-| 6 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-16384) | A | 9.2 | 6.2 | 3.0 | ✓ |
-| 7 | glm-4.7-flash(q4_K_M) (ctx-10240) | A | 9.2 | 6.2 | 3.0 | ✓ |
-| 8 | llama3.1(8b-instruct-q4_K_M) (ctx-8192) | A | 9.1 | 6.0 | 3.0 | ✓ |
-| 9 | phi4(14b-q4_K_M) (ctx-16384) | A | 9.0 | 6.0 | 3.0 | ✓ |
-| 10 | phi4(14b-q4_K_M) (ctx-8192) | A | 9.0 | 6.0 | 3.0 | ✓ |
-| 11 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
-| 12 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
-| 13 | qwen3(8b) (ctx-16384) | B | 8.8 | 5.8 | 3.0 | ✓ |
-| 14 | qwen3(8b) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
-| 15 | llama3.1(8b) (ctx-10240) | B | 8.8 | 5.8 | 3.0 | ✓ |
-| 16 | glm-4.7-flash(q4_K_M) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
-| 17 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
-| 18 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-16384) | B | 8.7 | 5.7 | 3.0 | ✓ |
-| 19 | phi4(14b-q4_K_M) (ctx-10240) | B | 8.7 | 5.7 | 3.0 | ✓ |
-| 20 | qwen2.5-coder(7b) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
-| 21 | llama3.1(8b) (ctx-8192) | B | 8.6 | 5.5 | 3.0 | ✓ |
-| 22 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-10240) | B | 8.6 | 5.5 | 3.0 | ✓ |
-| 23 | gemma2(9b-instruct-q4_K_M) (ctx-10240) | B | 8.5 | 5.5 | 3.0 | ✓ |
-| 24 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-10240) | B | 8.5 | 5.5 | 3.0 | ✓ |
-| 25 | qwen2.5-coder(7b) (ctx-16384) | B | 8.5 | 5.5 | 3.0 | ✓ |
-| 26 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-10240) | B | 8.4 | 5.4 | 3.0 | ✓ |
-| 27 | qwen2.5-coder(7b) (ctx-10240) | B | 8.3 | 5.3 | 3.0 | ✓ |
-| 28 | gemma2(9b-instruct-q4_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
-| 29 | llama3.1(8b-instruct-q4_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
-| 30 | llama3.2(latest) (ctx-8192) | B | 8.3 | 5.3 | 3.0 | ✓ |
-| 31 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
-| 32 | llama3.2(latest) (ctx-16384) | B | 8.2 | 5.2 | 3.0 | ✓ |
-| 33 | gemma2(9b-instruct-q4_K_M) (ctx-8192) | B | 8.2 | 5.2 | 3.0 | ✓ |
-| 34 | deepseek-coder-v2(16b) (ctx-16384) | B | 8.1 | 5.0 | 3.0 | ✓ |
-| 35 | deepseek-coder-v2(16b) (ctx-8192) | C | 8.0 | 5.0 | 3.0 | ✓ |
-| 36 | llama3.1(8b-instruct-q4_K_M) (ctx-10240) | C | 7.8 | 4.8 | 3.0 | ✓ |
-| 37 | llama3.2(latest) (ctx-10240) | C | 7.7 | 4.7 | 3.0 | ✓ |
-| 38 | gemma3(12b-it-q4_K_M) (ctx-10240) | C | 7.3 | 4.3 | 3.0 | ✓ |
-| 39 | deepseek-coder-v2(16b) (ctx-10240) | C | 7.2 | 4.2 | 3.0 | ✓ |
-| 40 | gemma3(12b-it-q4_K_M) (ctx-8192) | C | 7.1 | 4.1 | 3.0 | ✓ |
-| 41 | llama3.1(8b) (ctx-16384) | D | 6.5 | 3.5 | 3.0 | ✗ |
-| 42 | glm-4.7-flash(q4_K_M) (ctx-16384) | N/A | 0.0 | 0.0 | 0.0 | ✗ |
+| 2 | hf.co__unsloth__gpt-oss-20b-GGUF(Q5_K_M) (ctx-16384) | A | 9.8 | 6.8 | 3.0 | ✓ |
+| 3 | qwen3(8b) (ctx-10240) | A | 9.7 | 6.7 | 3.0 | ✓ |
+| 4 | qwen3(14b) (ctx-8192) | A | 9.5 | 6.5 | 3.0 | ✓ |
+| 5 | qwen3(14b) (ctx-10240) | A | 9.3 | 6.3 | 3.0 | ✓ |
+| 6 | gemma3(12b-it-q4_K_M) (ctx-16384) | A | 9.2 | 6.2 | 3.0 | ✓ |
+| 7 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-16384) | A | 9.2 | 6.2 | 3.0 | ✓ |
+| 8 | glm-4.7-flash(q4_K_M) (ctx-10240) | A | 9.2 | 6.2 | 3.0 | ✓ |
+| 9 | hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) (ctx-16384) | A | 9.1 | 6.0 | 3.0 | ✓ |
+| 10 | llama3.1(8b-instruct-q4_K_M) (ctx-8192) | A | 9.1 | 6.0 | 3.0 | ✓ |
+| 11 | phi4(14b-q4_K_M) (ctx-16384) | A | 9.0 | 6.0 | 3.0 | ✓ |
+| 12 | phi4(14b-q4_K_M) (ctx-8192) | A | 9.0 | 6.0 | 3.0 | ✓ |
+| 13 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
+| 14 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
+| 15 | qwen3(8b) (ctx-16384) | B | 8.8 | 5.8 | 3.0 | ✓ |
+| 16 | qwen3(8b) (ctx-8192) | B | 8.8 | 5.8 | 3.0 | ✓ |
+| 17 | llama3.1(8b) (ctx-10240) | B | 8.8 | 5.8 | 3.0 | ✓ |
+| 18 | glm-4.7-flash(q4_K_M) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
+| 19 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
+| 20 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-16384) | B | 8.7 | 5.7 | 3.0 | ✓ |
+| 21 | phi4(14b-q4_K_M) (ctx-10240) | B | 8.7 | 5.7 | 3.0 | ✓ |
+| 22 | qwen2.5-coder(7b) (ctx-8192) | B | 8.7 | 5.7 | 3.0 | ✓ |
+| 23 | llama3.1(8b) (ctx-8192) | B | 8.6 | 5.5 | 3.0 | ✓ |
+| 24 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-10240) | B | 8.6 | 5.5 | 3.0 | ✓ |
+| 25 | gemma2(9b-instruct-q4_K_M) (ctx-10240) | B | 8.5 | 5.5 | 3.0 | ✓ |
+| 26 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-10240) | B | 8.5 | 5.5 | 3.0 | ✓ |
+| 27 | qwen2.5-coder(7b) (ctx-16384) | B | 8.5 | 5.5 | 3.0 | ✓ |
+| 28 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-10240) | B | 8.4 | 5.4 | 3.0 | ✓ |
+| 29 | qwen2.5-coder(7b) (ctx-10240) | B | 8.3 | 5.3 | 3.0 | ✓ |
+| 30 | gemma2(9b-instruct-q4_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
+| 31 | llama3.1(8b-instruct-q4_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
+| 32 | llama3.2(latest) (ctx-8192) | B | 8.3 | 5.3 | 3.0 | ✓ |
+| 33 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-16384) | B | 8.3 | 5.3 | 3.0 | ✓ |
+| 34 | llama3.2(latest) (ctx-16384) | B | 8.2 | 5.2 | 3.0 | ✓ |
+| 35 | gemma2(9b-instruct-q4_K_M) (ctx-8192) | B | 8.2 | 5.2 | 3.0 | ✓ |
+| 36 | deepseek-coder-v2(16b) (ctx-16384) | B | 8.1 | 5.0 | 3.0 | ✓ |
+| 37 | deepseek-coder-v2(16b) (ctx-8192) | C | 8.0 | 5.0 | 3.0 | ✓ |
+| 38 | llama3.1(8b-instruct-q4_K_M) (ctx-10240) | C | 7.8 | 4.8 | 3.0 | ✓ |
+| 39 | llama3.2(latest) (ctx-10240) | C | 7.7 | 4.7 | 3.0 | ✓ |
+| 40 | gemma3(12b-it-q4_K_M) (ctx-10240) | C | 7.3 | 4.3 | 3.0 | ✓ |
+| 41 | deepseek-coder-v2(16b) (ctx-10240) | C | 7.2 | 4.2 | 3.0 | ✓ |
+| 42 | gemma3(12b-it-q4_K_M) (ctx-8192) | C | 7.1 | 4.1 | 3.0 | ✓ |
+| 43 | llama3.1(8b) (ctx-16384) | D | 6.5 | 3.5 | 3.0 | ✗ |
+| 44 | glm-4.7-flash(q4_K_M) (ctx-16384) | N/A | 0.0 | 0.0 | 0.0 | ✗ |
 
 *Manual review scores are placeholder (50% of 30%). Reviewers should adjust based on notes below.*
 
@@ -71,12 +73,14 @@ Evaluated **42** agentic task implementations against the requirements in `requi
 | Model | Format | Tools | Execution | Data Flow | Error Handle | Logging |
 |-------|--------|-------|-----------|-----------|--------------|----------|
 | qwen3(14b) (ctx-16384) | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 |
+| hf.co__unsloth__gpt-oss-20b-GGUF(Q5_K_M) (ctx-16384) | 10.0 | 10.0 | 10.0 | 9.0 | 10.0 | 10.0 |
 | qwen3(8b) (ctx-10240) | 7.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 |
 | qwen3(14b) (ctx-8192) | 10.0 | 10.0 | 10.0 | 10.0 | 5.0 | 10.0 |
 | qwen3(14b) (ctx-10240) | 10.0 | 10.0 | 10.0 | 10.0 | 3.0 | 10.0 |
 | gemma3(12b-it-q4_K_M) (ctx-16384) | 7.0 | 10.0 | 10.0 | 10.0 | 5.0 | 10.0 |
 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-16384) | 3.5 | 10.0 | 10.0 | 9.0 | 10.0 | 10.0 |
 | glm-4.7-flash(q4_K_M) (ctx-10240) | 10.0 | 10.0 | 10.0 | 9.0 | 3.0 | 10.0 |
+| hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) (ctx-16384) | 7.0 | 10.0 | 10.0 | 9.0 | 5.0 | 10.0 |
 | llama3.1(8b-instruct-q4_K_M) (ctx-8192) | 10.0 | 10.0 | 10.0 | 7.0 | 5.0 | 10.0 |
 | phi4(14b-q4_K_M) (ctx-16384) | 7.0 | 10.0 | 10.0 | 10.0 | 3.0 | 10.0 |
 | phi4(14b-q4_K_M) (ctx-8192) | 7.0 | 10.0 | 10.0 | 10.0 | 3.0 | 10.0 |
@@ -139,6 +143,65 @@ Evaluated **42** agentic task implementations against the requirements in `requi
 **Error Handling:** 3 try blocks, 3 except blocks
 
 **Logging:** 9 log_operation calls
+
+#### Manual Review Guidelines (30%)
+
+**Planning Quality (10%):** MANUAL REVIEW REQUIRED
+  Evaluate:
+  - Are steps clearly numbered and described?
+  - Are data dependencies identified?
+  - Is the sequence logical and efficient?
+  - Is error handling strategy mentioned?
+  ✓ Plan has numbered steps
+  ✓ Tools are mentioned in plan
+
+**Tool Orchestration Strategy (10%):** MANUAL REVIEW REQUIRED
+  Evaluate:
+  - Are tools orchestrated in the right sequence?
+  - Is there any redundant tool usage?
+  - Are all necessary tools used?
+  - Is the orchestration efficient?
+  ✓ Code loops over portfolios
+  ✓ Code uses functions (modular structure)
+
+**Design Justification (10%):** MANUAL REVIEW REQUIRED
+  Evaluate:
+  - Are design decisions explained?
+  - Is the orchestration sequence justified?
+  - Are trade-offs discussed?
+  - Is the reasoning sound?
+  ✓ Discusses orchestration/sequencing
+  ✓ Discusses error handling strategy
+  ✓ Discusses data flow
+
+### hf.co__unsloth__gpt-oss-20b-GGUF(Q5_K_M) (ctx-16384)
+
+**Overall Grade: A (9.8/10.0)**
+
+#### Automated Scores (70%)
+
+- **Output Format (10%):** 10.0/10.0
+- **Tool Coverage (10%):** 10.0/10.0
+- **Execution Success (15%):** 10.0/10.0
+- **Data Flow Correctness (15%):** 9.0/10.0
+- **Error Handling (10%):** 10.0/10.0
+- **Logging Completeness (10%):** 10.0/10.0
+
+**Automated Subtotal:** 6.8/7.0
+
+#### Automated Check Details
+
+**Tools Used (8/8):** calculate_portfolio_value, calculate_volatility_score, check_risk_threshold, generate_report, get_portfolio_holdings, get_stock_prices, log_operation, send_notification
+
+**Execution:** ✓ Success
+
+**Error Handling:** 8 try blocks, 9 except blocks
+
+**Logging:** 6 log_operation calls
+
+#### Issues Found
+
+- May not be passing report to notification
 
 #### Manual Review Guidelines (30%)
 
@@ -498,6 +561,59 @@ Evaluated **42** agentic task implementations against the requirements in `requi
   ✓ Discusses orchestration/sequencing
   ✓ Discusses error handling strategy
   ✓ Discusses data flow
+
+### hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) (ctx-16384)
+
+**Overall Grade: A (9.1/10.0)**
+
+#### Automated Scores (70%)
+
+- **Output Format (10%):** 7.0/10.0
+- **Tool Coverage (10%):** 10.0/10.0
+- **Execution Success (15%):** 10.0/10.0
+- **Data Flow Correctness (15%):** 9.0/10.0
+- **Error Handling (10%):** 5.0/10.0
+- **Logging Completeness (10%):** 10.0/10.0
+
+**Automated Subtotal:** 6.0/7.0
+
+#### Automated Check Details
+
+**Tools Used (8/8):** calculate_portfolio_value, calculate_volatility_score, check_risk_threshold, generate_report, get_portfolio_holdings, get_stock_prices, log_operation, send_notification
+
+**Execution:** ✓ Success
+
+**Error Handling:** 1 try blocks, 1 except blocks
+
+**Logging:** 9 log_operation calls
+
+#### Issues Found
+
+- Missing or incomplete Design Justification section
+- May not be passing report to notification
+- Minimal error handling - should wrap each portfolio processing
+
+#### Manual Review Guidelines (30%)
+
+**Planning Quality (10%):** MANUAL REVIEW REQUIRED
+  Evaluate:
+  - Are steps clearly numbered and described?
+  - Are data dependencies identified?
+  - Is the sequence logical and efficient?
+  - Is error handling strategy mentioned?
+  ✓ Plan has numbered steps
+  ✓ Tools are mentioned in plan
+
+**Tool Orchestration Strategy (10%):** MANUAL REVIEW REQUIRED
+  Evaluate:
+  - Are tools orchestrated in the right sequence?
+  - Is there any redundant tool usage?
+  - Are all necessary tools used?
+  - Is the orchestration efficient?
+  ✓ Code loops over portfolios
+  ✓ Code uses functions (modular structure)
+
+**Design Justification (10%):** REVIEW REQUIRED - No justification section found
 
 ### llama3.1(8b-instruct-q4_K_M) (ctx-8192)
 

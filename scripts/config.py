@@ -45,6 +45,8 @@ MODELS = [
     "deepseek-coder-v2:16b",
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M",
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M",
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M",
     # Tier 4: Cloud models
     "kimi-k2.5:cloud",
     "glm-4.7:cloud",
@@ -66,6 +68,8 @@ MODELS_TO_PULL = [
     "gemma3:12b-it-q4_K_M",
     "gemma2:9b-instruct-q4_K_M",
     "mistral:7b-instruct-v0.3-q5_K_M",
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M",
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M",
 ]
 
 # Context sizes per model (num_ctx for Ollama API)
@@ -88,6 +92,8 @@ MODEL_NUM_CTX = {
     "deepseek-coder-v2:16b": 4096,
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M": 4096,
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M": 4096,
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M": 4096,
     # Cloud models (no VRAM constraint)
     "kimi-k2.5:cloud": 32768,
     "glm-4.7:cloud": 32768,
@@ -142,6 +148,8 @@ MODEL_META = {
     "deepseek-coder-v2:16b": (2, 10.0),
     # Tier 3: Partial offload
     "glm-4.7-flash:q4_K_M": (3, 19.0),
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M": (3, 11.6),
+    "hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M": (3, 11.7),
     # Tier 4: Cloud
     "kimi-k2.5:cloud": (4, 0),
     "glm-4.7:cloud": (4, 0),
@@ -174,16 +182,18 @@ GPU_POLL_INTERVAL = 1.0
 def model_to_dirname(model: str) -> str:
     """Convert an Ollama model tag to a Windows-safe directory name.
 
-    Replaces ':' with '(' and appends ')'.
+    Replaces '/' with '__' and ':' with '(' and appends ')'.
     Examples:
         llama3.1:8b -> llama3.1(8b)
         qwen2.5-coder:7b-instruct-q5_K_M -> qwen2.5-coder(7b-instruct-q5_K_M)
         llama3.2:latest -> llama3.2(latest)
+        hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M -> hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M)
     """
-    if ":" in model:
-        name, tag = model.split(":", 1)
+    safe = model.replace("/", "__")
+    if ":" in safe:
+        name, tag = safe.split(":", 1)
         return f"{name}({tag})"
-    return model
+    return safe
 
 
 def dirname_to_model(dirname: str) -> str:
@@ -192,11 +202,13 @@ def dirname_to_model(dirname: str) -> str:
     Examples:
         llama3.1(8b) -> llama3.1:8b
         qwen2.5-coder(7b-instruct-q5_K_M) -> qwen2.5-coder:7b-instruct-q5_K_M
+        hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) -> hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M
     """
     match = re.match(r"^(.+)\((.+)\)$", dirname)
     if match:
-        return f"{match.group(1)}:{match.group(2)}"
-    return dirname
+        name = match.group(1).replace("__", "/")
+        return f"{name}:{match.group(2)}"
+    return dirname.replace("__", "/")
 
 
 def get_model_results_dir(model: str, task: str, mode: str = None, ctx_size: int = None) -> str:

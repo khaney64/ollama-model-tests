@@ -52,13 +52,13 @@ Tasks range from ~1,000 to ~19,000 output tokens, testing whether models can pro
 
 ## Models
 
-18 models across 4 tiers (13 local + 5 cloud), categorized by VRAM fit on a 12GB GPU. The source of truth for all model configuration is [`scripts/config.py`](scripts/config.py). See [Customizing Models](#customizing-models) to add your own.
+20 models across 4 tiers (15 local + 5 cloud), categorized by VRAM fit on a 12GB GPU. The source of truth for all model configuration is [`scripts/config.py`](scripts/config.py). See [Customizing Models](#customizing-models) to add your own.
 
 | Tier | VRAM Fit | Models |
 |------|----------|--------|
 | 1 | Comfortable (<10 GB) | qwen3:8b, qwen2.5-coder:7b-instruct-q5_K_M, gemma2:9b-instruct-q4_K_M, gemma3:12b-it-q4_K_M, mistral:7b-instruct-v0.3-q5_K_M, phi4:14b-q4_K_M, llama3.1:8b-instruct-q4_K_M, llama3.2:latest |
 | 2 | Tight (9-11 GB) | qwen3:14b, qwen2.5-coder:14b-instruct-q4_K_M, deepseek-coder-v2:16b |
-| 3 | Partial offload (>12 GB) | glm-4.7-flash:q4_K_M |
+| 3 | Partial offload (>12 GB) | glm-4.7-flash:q4_K_M, hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M, hf.co/unsloth/gpt-oss-20b-GGUF:Q5_K_M |
 | 4 | Cloud API | kimi-k2.5:cloud, glm-4.7:cloud, glm-5:cloud, minimax-m2.5:cloud, qwen3-coder-next:cloud |
 
 ## Project Structure
