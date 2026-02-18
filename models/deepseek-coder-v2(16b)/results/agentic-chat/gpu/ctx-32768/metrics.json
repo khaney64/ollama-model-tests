@@ -1,0 +1,57 @@
+{
+  "model": "deepseek-coder-v2:16b",
+  "task": "agentic-chat",
+  "wall_clock_s": 0.07,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-18T10:02:09.211420",
+  "timing": {
+    "total_duration_s": 0.07,
+    "prompt_eval_duration_s": 0.0,
+    "eval_duration_s": 0.0
+  },
+  "tokens": {
+    "prompt_eval_count": 0,
+    "eval_count": 0,
+    "prompt_eval_tokens_per_sec": 0,
+    "eval_tokens_per_sec": 0
+  },
+  "chat": {
+    "total_turns": 1,
+    "total_tool_calls": 0,
+    "successful_tool_calls": 0,
+    "tool_call_success_rate": 0,
+    "tools_used": [],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.0
+  },
+  "gpu": {
+    "peak_vram_mb": 1975.0,
+    "avg_vram_mb": 1975.0,
+    "avg_gpu_utilization_pct": 0.0,
+    "max_gpu_utilization_pct": 0.0,
+    "max_temperature_c": 34.0,
+    "peak_cpu_pct": 22.3,
+    "avg_cpu_pct": 22.3,
+    "sample_count": 1
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  },
+  "warnings": [
+    "Chat did not complete with a final text response"
+  ]
+}

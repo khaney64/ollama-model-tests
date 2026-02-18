@@ -47,8 +47,15 @@ Each task is a self-contained coding prompt designed to test different aspects o
 | engine | [engine.md](requirements/engine.md) | Business logic implementation from specification (internal task) |
 | api | [api.md](requirements/api.md) | Weather Station API with FastAPI + pytest tests |
 | agentic | [agentic.md](requirements/agentic.md) | Portfolio risk analysis agent with tool orchestration |
+| agentic-chat | [agentic-chat.md](requirements/agentic-chat.md) | Same scenario as agentic, but via `/api/chat` with structured tool calling |
 
 Tasks range from ~1,000 to ~19,000 output tokens, testing whether models can produce complete answers within their context limits.
+
+### Why both `agentic` and `agentic-chat`?
+
+The `agentic` task uses Ollama's `/api/generate` endpoint — it sends a text prompt and evaluates the model's generated Python code. This tests whether a model *understands* tool orchestration conceptually.
+
+The `agentic-chat` task uses `/api/chat` with structured tool definitions and a multi-turn tool-calling loop. This tests whether a model can actually produce structured `tool_calls` in the wire format that applications like OpenClaw use. Models that score well on `agentic` (and other text benchmarks) often fail completely at structured tool calling — they describe the right workflow in prose but can't emit the JSON protocol. In GPU benchmarks at ctx-8192, only 4 of 16 models made any structured tool calls at all. The `agentic-chat` task catches these silent failures that no amount of text-based benchmarking can reveal.
 
 ## Models
 
@@ -65,24 +72,28 @@ Tasks range from ~1,000 to ~19,000 output tokens, testing whether models can pro
 
 ```
 scripts/
-  run_benchmark.py         # Main orchestrator
-  generate_report.py       # Build comparison tables from results
-  evaluate_engine_code.py  # Evaluate engine task implementations
-  evaluate_agentic_code.py # Evaluate agentic task implementations
-  config.py                # Models, tasks, context sizes, model metadata
-  monitor_gpu.py           # GPU/VRAM monitoring during generation
-  pull_models.py           # Pull models from Ollama registry
-requirements/              # Task prompt files (.md)
-refactor-source/           # C# source files inlined into refactor task
-models/                    # Results per model per task per mode
+  run_benchmark.py             # Main orchestrator (routes to generate or chat benchmark)
+  run_chat_benchmark.py        # Multi-turn /api/chat benchmark with tool calling
+  generate_report.py           # Build comparison tables from results
+  evaluate_engine_code.py      # Evaluate engine task implementations
+  evaluate_agentic_code.py     # Evaluate agentic task implementations (70% auto)
+  evaluate_agentic_chat.py     # Evaluate agentic-chat task (100% automated)
+  config.py                    # Models, tasks, context sizes, model metadata
+  monitor_gpu.py               # GPU/VRAM monitoring during generation
+  pull_models.py               # Pull models from Ollama registry
+requirements/                  # Task prompt files (.md)
+  agentic_chat_tools.py        # Tool schemas + dispatch for agentic-chat task
+refactor-source/               # C# source files inlined into refactor task
+models/                        # Results per model per task per mode
   {model}/results/{task}/{mode}/
-    metrics.json           # Timing, tokens, GPU stats
-    output.md              # Model's generated response
+    metrics.json               # Timing, tokens, GPU stats
+    output.md                  # Model's generated response
+    transcript.json            # (agentic-chat only) Raw messages for evaluation
   {model}/results/{task}/gpu/ctx-{size}/  # GPU mode: multiple context sizes
-reports/                   # Generated comparison reports
-  cpu/                     # CPU mode reports
-  gpu/                     # GPU mode reports
-  cloud/                   # Cloud mode reports
+reports/                       # Generated comparison reports
+  cpu/                         # CPU mode reports
+  gpu/                         # GPU mode reports
+  cloud/                       # Cloud mode reports
 ```
 
 ## CLI Options
@@ -110,12 +121,14 @@ reports/                   # Generated comparison reports
 
 ### Evaluation scripts
 
-Both `evaluate_engine_code.py` and `evaluate_agentic_code.py`:
+All evaluation scripts (`evaluate_engine_code.py`, `evaluate_agentic_code.py`, `evaluate_agentic_chat.py`):
 
 | Flag | Description |
 |------|-------------|
 | `--mode` | **REQUIRED**: `cpu`, `gpu`, or `cloud` |
 | `--ctx-size` | Optional: For GPU mode, specify context size (e.g., `8192`) |
+
+The `agentic-chat` evaluator is 100% automated (structured tool calls are machine-checkable) and classifies each model's outcome as one of: `success`, `partial_success`, `empty_response`, `stalled_inference`, `text_narration`, or `no_tool_support`.
 
 ## Customizing Models
 

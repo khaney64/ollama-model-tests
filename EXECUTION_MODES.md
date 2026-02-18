@@ -99,14 +99,20 @@ Evaluation scripts also require `--mode`:
 # Evaluate CPU results
 python scripts/evaluate_engine_code.py --mode cpu
 python scripts/evaluate_agentic_code.py --mode cpu
+python scripts/evaluate_agentic_chat.py --mode cpu
 
 # Evaluate GPU results for specific context size
 python scripts/evaluate_engine_code.py --mode gpu --ctx-size 8192
 python scripts/evaluate_agentic_code.py --mode gpu --ctx-size 16384
+python scripts/evaluate_agentic_chat.py --mode gpu --ctx-size 8192
+
+# Evaluate GPU results across all context sizes (omit --ctx-size)
+python scripts/evaluate_agentic_chat.py --mode gpu
 
 # Evaluate cloud results
 python scripts/evaluate_engine_code.py --mode cloud
 python scripts/evaluate_agentic_code.py --mode cloud
+python scripts/evaluate_agentic_chat.py --mode cloud
 ```
 
 ## Batch Files

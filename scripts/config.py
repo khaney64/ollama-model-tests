@@ -13,11 +13,12 @@ REPORTS_DIR = os.path.join(PROJECT_ROOT, "reports")
 # Ollama API
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+OLLAMA_CHAT_URL = f"{OLLAMA_BASE_URL}/api/chat"
 OLLAMA_PULL_URL = f"{OLLAMA_BASE_URL}/api/pull"
 OLLAMA_LIST_URL = f"{OLLAMA_BASE_URL}/api/tags"
 
 # Tasks
-TASKS = ["greenfield", "refactor", "engine", "api", "agentic"]
+TASKS = ["greenfield", "refactor", "engine", "api", "agentic", "agentic-chat"]
 
 # Execution modes
 EXECUTION_MODES = ["cloud", "cpu", "gpu"]

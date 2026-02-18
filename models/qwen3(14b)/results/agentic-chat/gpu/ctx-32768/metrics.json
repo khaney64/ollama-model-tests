@@ -1,0 +1,62 @@
+{
+  "model": "qwen3:14b",
+  "task": "agentic-chat",
+  "wall_clock_s": 742.95,
+  "num_ctx": 32768,
+  "num_predict": 32768,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-18T10:01:20.633181",
+  "timing": {
+    "total_duration_s": 742.95,
+    "prompt_eval_duration_s": 11.38,
+    "eval_duration_s": 724.41
+  },
+  "tokens": {
+    "prompt_eval_count": 89427,
+    "eval_count": 7645,
+    "prompt_eval_tokens_per_sec": 7856.34,
+    "eval_tokens_per_sec": 10.55
+  },
+  "chat": {
+    "total_turns": 15,
+    "total_tool_calls": 28,
+    "successful_tool_calls": 28,
+    "tool_call_success_rate": 1.0,
+    "tools_used": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation"
+    ],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.88
+  },
+  "gpu": {
+    "peak_vram_mb": 11496.0,
+    "avg_vram_mb": 11407.6,
+    "avg_gpu_utilization_pct": 33.5,
+    "max_gpu_utilization_pct": 100.0,
+    "max_temperature_c": 52.0,
+    "peak_cpu_pct": 90.5,
+    "avg_cpu_pct": 56.9,
+    "sample_count": 687
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

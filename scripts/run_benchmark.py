@@ -16,6 +16,7 @@ from config import (
     MODELS,
     MODELS_DIR,
     OLLAMA_BASE_URL,
+    OLLAMA_CHAT_URL,
     OLLAMA_GENERATE_URL,
     OLLAMA_LIST_URL,
     REFACTOR_SOURCE_DIR,
@@ -30,6 +31,13 @@ from config import (
 )
 from monitor_gpu import GPUMonitor
 from datetime import datetime
+from run_chat_benchmark import (
+    parse_prompt_for_chat,
+    run_chat_benchmark,
+    aggregate_chat_metrics,
+    classify_chat_result,
+    save_chat_results,
+)
 
 
 def check_ollama_running() -> bool:
@@ -438,6 +446,128 @@ def run_single_benchmark(model: str, task: str, mode: str, num_ctx_override: int
     time.sleep(2)  # Brief pause to let VRAM clear
 
 
+def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override: int | None = None, num_predict_override: int | None = None, timeout: int = 600, num_threads: int | None = None):
+    """Run a single model against the agentic-chat task using /api/chat with tool calling."""
+    print(f"\n{'='*60}")
+    print(f"Model: {model}")
+    print(f"Task:  {task} (chat mode)")
+    print(f"Mode:  {mode}")
+    print(f"{'='*60}")
+
+    # Load and parse prompt
+    print("  Loading prompt...")
+    prompt = load_prompt(task)
+    system_msg, user_msg = parse_prompt_for_chat(prompt)
+    print(f"  System message: {len(system_msg)} chars")
+    print(f"  User message: {len(user_msg)} chars")
+
+    if not system_msg or not user_msg:
+        print("  ERROR: Failed to parse system/user messages from prompt")
+        return
+
+    # Import tool definitions
+    sys.path.insert(0, REQUIREMENTS_DIR)
+    from agentic_chat_tools import TOOL_DEFINITIONS
+
+    # Start GPU monitoring
+    gpu_monitor = GPUMonitor(poll_interval=GPU_POLL_INTERVAL)
+    gpu_monitor.start()
+
+    # Determine parameters
+    num_ctx = num_ctx_override if num_ctx_override is not None else get_num_ctx(model)
+    num_predict = num_predict_override if num_predict_override is not None else get_num_predict(model)
+    print(f"  Context size: {num_ctx} tokens{' (override)' if num_ctx_override else ''}")
+    print(f"  Max output tokens: {num_predict}{' (override)' if num_predict_override else ''}")
+    if num_threads is not None:
+        print(f"  CPU threads: {num_threads}")
+    else:
+        print(f"  CPU threads: Ollama default (physical cores)")
+    print("  Running multi-turn chat benchmark...")
+
+    start_time = time.time()
+    chat_result = run_chat_benchmark(
+        model=model,
+        system_msg=system_msg,
+        user_msg=user_msg,
+        tools=TOOL_DEFINITIONS,
+        num_ctx=num_ctx,
+        num_predict=num_predict,
+        timeout_total=timeout,
+        num_threads=num_threads,
+    )
+    elapsed = time.time() - start_time
+    print(f"  Chat completed in {elapsed:.1f}s ({chat_result['total_turns']} turns)")
+
+    # Stop GPU monitoring
+    gpu_summary = gpu_monitor.stop()
+
+    # Aggregate metrics
+    chat_metrics = aggregate_chat_metrics(
+        chat_result["turn_metrics"],
+        chat_result["tool_calls_log"],
+    )
+
+    # Build standard metrics dict
+    metrics = {
+        "model": model,
+        "task": task,
+        "wall_clock_s": round(elapsed, 2),
+        "num_ctx": num_ctx,
+        "num_predict": num_predict,
+        "execution_mode": mode,
+        "run_timestamp": datetime.now().isoformat(),
+        "timing": chat_metrics["timing"],
+        "tokens": chat_metrics["tokens"],
+        "chat": chat_metrics["chat"],
+        "gpu": gpu_summary.to_dict(),
+    }
+    if num_threads is not None:
+        metrics["num_threads"] = num_threads
+
+    # Hardware metadata
+    import platform
+    hw_info = {"cpu_logical_cores": os.cpu_count()}
+    if mode == "gpu":
+        hw_info.update(GPUMonitor.get_gpu_info())
+    metrics["hardware"] = hw_info
+
+    # Classify outcome
+    classification = classify_chat_result(
+        chat_result, elapsed, chat_metrics["tokens"]["eval_count"]
+    )
+    metrics["chat"]["failure_classification"] = classification
+
+    # Print summary
+    tokens = metrics["tokens"]
+    chat_info = metrics["chat"]
+    gpu = metrics["gpu"]
+    cls = classification["classification"]
+    print(f"  Result: {cls} -- {classification['description']}")
+    print(f"  Total turns: {chat_info['total_turns']}")
+    print(f"  Tool calls: {chat_info['total_tool_calls']} ({chat_info['successful_tool_calls']} successful)")
+    print(f"  Tool coverage: {chat_info['tool_coverage']*100:.0f}% ({len(chat_info['tools_used'])}/8)")
+    print(f"  Tools used: {', '.join(chat_info['tools_used']) or 'none'}")
+    print(f"  Completed: {chat_result['completed']}")
+    print(f"  Total tokens: {tokens['prompt_eval_count']} prompt + {tokens['eval_count']} generated")
+    if tokens['eval_tokens_per_sec'] > 0:
+        print(f"  Generation speed: {tokens['eval_tokens_per_sec']} tok/s")
+    print(f"  Peak VRAM: {gpu['peak_vram_mb']} MB")
+    print(f"  Peak CPU: {gpu['peak_cpu_pct']}%")
+
+    if not chat_result["completed"]:
+        metrics["warnings"] = ["Chat did not complete with a final text response"]
+        print("  *** WARNING: Chat did not produce a final response")
+
+    # Save results
+    ctx_size = num_ctx if mode == "gpu" else None
+    save_chat_results(model, task, chat_result, metrics, mode=mode, ctx_size=ctx_size)
+
+    # Unload model to free VRAM
+    print("  Unloading model...")
+    unload_model(model)
+    time.sleep(2)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Ollama model benchmarks")
     parser.add_argument(
@@ -617,13 +747,22 @@ def main():
         for task in tasks:
             current += 1
             print(f"\n[{current}/{total}]")
-            run_single_benchmark(
-                model, task, mode=args.mode,
-                num_ctx_override=args.num_ctx,
-                num_predict_override=args.num_predict,
-                timeout=timeout_seconds,
-                num_threads=num_threads
-            )
+            if task == "agentic-chat":
+                run_single_chat_benchmark(
+                    model, task, mode=args.mode,
+                    num_ctx_override=args.num_ctx,
+                    num_predict_override=args.num_predict,
+                    timeout=timeout_seconds,
+                    num_threads=num_threads
+                )
+            else:
+                run_single_benchmark(
+                    model, task, mode=args.mode,
+                    num_ctx_override=args.num_ctx,
+                    num_predict_override=args.num_predict,
+                    timeout=timeout_seconds,
+                    num_threads=num_threads
+                )
 
     print(f"\n{'='*60}")
     print("All benchmarks complete!")

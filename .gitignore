@@ -27,3 +27,7 @@ reports/cpu-test/
 # Keep CPU agentic results tracked
 !models/*/results/agentic/cpu/metrics.json
 !models/*/results/agentic/cpu/output.md
+
+# Keep CPU agentic-chat results tracked
+!models/*/results/agentic-chat/cpu/metrics.json
+!models/*/results/agentic-chat/cpu/output.md
