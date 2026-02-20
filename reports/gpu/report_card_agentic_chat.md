@@ -1,22 +1,22 @@
 # Agentic Chat Task Report Card
 
-Generated: 2026-02-18 17:32:53
+Generated: 2026-02-19 19:03:28
 
 This task tests models using Ollama's `/api/chat` endpoint with structured
 tool calling (the same protocol used by OpenClaw and similar applications).
 
 ## Executive Summary
 
-Evaluated **32** model(s) on the agentic-chat task.
+Evaluated **34** model(s) on the agentic-chat task.
 
 **Grade Distribution:**
-- A: 17 model(s)
+- A: 19 model(s)
 - B: 2 model(s)
 - D: 1 model(s)
 - F: 12 model(s)
 
 **Outcome Classification:**
-- **Success (structured tool calls, completed)**: 18 model(s)
+- **Success (structured tool calls, completed)**: 20 model(s)
 - **Partial Success (tool calls but incomplete)**: 2 model(s)
 - **Text Narration (described tools in prose, 0 structured calls)**: 6 model(s)
 - **Empty Response (no tokens, instant return -- model lacks tool-call support)**: 4 model(s)
@@ -33,31 +33,33 @@ Evaluated **32** model(s) on the agentic-chat task.
 | 5 | hf.co__Qwen__Qwen3-8B-GGUF(Q6_K) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
 | 6 | hf.co__Qwen__Qwen3-8B-GGUF(Q8_0) (ctx-10240) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
 | 7 | hf.co__Qwen__Qwen3-8B-GGUF(Q8_0) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 8 | qwen3(14b) (ctx-10240) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 9 | qwen3(14b) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 10 | qwen3(14b) (ctx-32768) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 11 | qwen3(8b) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 12 | qwen3(8b) (ctx-32768) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 13 | qwen3(8b) (ctx-8192) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 14 | glm-4.7-flash(q4_K_M) (ctx-10240) | success | A | 9.8 | 10.0 | 8.3 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 15 | qwen3(14b) (ctx-8192) | success | A | 9.8 | 10.0 | 8.3 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
-| 16 | llama3.2(latest) (ctx-10240) | success | A | 9.1 | 10.0 | 10.0 | 10.0 | 4.0 | 10.0 | 10.0 | 10.0 | Y |
-| 17 | qwen3(8b) (ctx-10240) | partial_success | A | 9.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 0.0 | 10.0 | Y |
-| 18 | llama3.2(latest) (ctx-8192) | success | B | 8.8 | 10.0 | 10.0 | 10.0 | 2.0 | 10.0 | 10.0 | 10.0 | Y |
-| 19 | llama3.2(latest) (ctx-16384) | success | B | 8.4 | 10.0 | 10.0 | 10.0 | 4.0 | 10.0 | 10.0 | 3.0 | Y |
-| 20 | llama3.2(latest) (ctx-32768) | partial_success | D | 6.9 | 10.0 | 3.3 | 0.0 | 10.0 | 10.0 | 4.0 | 10.0 | N |
-| 21 | llama3.1(8b) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 22 | llama3.1(8b-instruct-q4_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 23 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 24 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 25 | qwen2.5-coder(7b) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 26 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
-| 27 | deepseek-coder-v2(16b) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
-| 28 | gemma2(9b-instruct-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
-| 29 | gemma3(12b-it-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
-| 30 | hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) (ctx-32768) | stalled_inference | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
-| 31 | hf.co__unsloth__gpt-oss-20b-GGUF(Q5_K_M) (ctx-32768) | stalled_inference | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
-| 32 | phi4(14b-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 8 | qwen2.5(7b) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 9 | qwen2.5(7b) (ctx-32768) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 10 | qwen3(14b) (ctx-10240) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 11 | qwen3(14b) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 12 | qwen3(14b) (ctx-32768) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 13 | qwen3(8b) (ctx-16384) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 14 | qwen3(8b) (ctx-32768) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 15 | qwen3(8b) (ctx-8192) | success | A | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 16 | glm-4.7-flash(q4_K_M) (ctx-10240) | success | A | 9.8 | 10.0 | 8.3 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 17 | qwen3(14b) (ctx-8192) | success | A | 9.8 | 10.0 | 8.3 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | Y |
+| 18 | llama3.2(latest) (ctx-10240) | success | A | 9.1 | 10.0 | 10.0 | 10.0 | 4.0 | 10.0 | 10.0 | 10.0 | Y |
+| 19 | qwen3(8b) (ctx-10240) | partial_success | A | 9.0 | 10.0 | 10.0 | 10.0 | 10.0 | 10.0 | 0.0 | 10.0 | Y |
+| 20 | llama3.2(latest) (ctx-8192) | success | B | 8.8 | 10.0 | 10.0 | 10.0 | 2.0 | 10.0 | 10.0 | 10.0 | Y |
+| 21 | llama3.2(latest) (ctx-16384) | success | B | 8.4 | 10.0 | 10.0 | 10.0 | 4.0 | 10.0 | 10.0 | 3.0 | Y |
+| 22 | llama3.2(latest) (ctx-32768) | partial_success | D | 6.9 | 10.0 | 3.3 | 0.0 | 10.0 | 10.0 | 4.0 | 10.0 | N |
+| 23 | llama3.1(8b) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 24 | llama3.1(8b-instruct-q4_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 25 | mistral(7b-instruct-v0.3-q5_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 26 | qwen2.5-coder(14b-instruct-q4_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 27 | qwen2.5-coder(7b) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 28 | qwen2.5-coder(7b-instruct-q5_K_M) (ctx-32768) | text_narration | F | 3.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 10.0 | 10.0 | N |
+| 29 | deepseek-coder-v2(16b) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 30 | gemma2(9b-instruct-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 31 | gemma3(12b-it-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 32 | hf.co__unsloth__gpt-oss-20b-GGUF(Q4_K_M) (ctx-32768) | stalled_inference | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 33 | hf.co__unsloth__gpt-oss-20b-GGUF(Q5_K_M) (ctx-32768) | stalled_inference | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
+| 34 | phi4(14b-q4_K_M) (ctx-32768) | empty_response | F | 2.5 | 0.0 | 0.0 | 0.0 | 0.0 | 10.0 | 0.0 | 10.0 | N |
 
 **Passing Score:** 7.0/10.0
 
@@ -242,6 +244,52 @@ Evaluated **32** model(s) on the agentic-chat task.
 **Portfolios:** PORT-001, PORT-002, PORT-003
 
 **Turns:** 7 | **Tool calls:** 18 | **Success rate:** 100%
+
+### qwen2.5(7b) (ctx-16384)
+
+**Grade: A (10.0/10.0)** | **Classification: success**
+
+> Made 30 tool calls using 7 tools, completed with final response
+
+| Criterion | Score |
+|-----------|-------|
+| Valid Tool Calls | 10.0/10 |
+| Tool Coverage | 10.0/10 |
+| Call Ordering | 10.0/10 |
+| Argument Correctness | 10.0/10 |
+| Portfolio Coverage | 10.0/10 |
+| Final Response | 10.0/10 |
+| Error Recovery | 10.0/10 |
+
+**Tools used (7/8):** calculate_portfolio_value, calculate_volatility_score, check_risk_threshold, generate_report, get_portfolio_holdings, log_operation, send_notification
+
+**Missing:** get_stock_prices
+
+**Portfolios:** PORT-001, PORT-002, PORT-003
+
+**Turns:** 3 | **Tool calls:** 30 | **Success rate:** 90%
+
+### qwen2.5(7b) (ctx-32768)
+
+**Grade: A (10.0/10.0)** | **Classification: success**
+
+> Made 27 tool calls using 8 tools, completed with final response
+
+| Criterion | Score |
+|-----------|-------|
+| Valid Tool Calls | 10.0/10 |
+| Tool Coverage | 10.0/10 |
+| Call Ordering | 10.0/10 |
+| Argument Correctness | 10.0/10 |
+| Portfolio Coverage | 10.0/10 |
+| Final Response | 10.0/10 |
+| Error Recovery | 10.0/10 |
+
+**Tools used (8/8):** calculate_portfolio_value, calculate_volatility_score, check_risk_threshold, generate_report, get_portfolio_holdings, get_stock_prices, log_operation, send_notification
+
+**Portfolios:** PORT-001, PORT-002, PORT-003
+
+**Turns:** 2 | **Tool calls:** 27 | **Success rate:** 89%
 
 ### qwen3(14b) (ctx-10240)
 

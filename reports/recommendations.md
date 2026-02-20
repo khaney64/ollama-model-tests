@@ -1,6 +1,6 @@
 # Model Recommendations for OpenClaw GPU Usage (RTX 4070 12GB)
 
-Generated: 2026-02-18
+Generated: 2026-02-19
 
 Context: Recommendations for using local Ollama models via OpenClaw at 32K context
 (OpenClaw's recommended default, warns below this), prioritizing agentic capabilities
@@ -9,7 +9,7 @@ with occasional coding subtasks.
 > **Critical caveat: Structured tool calling is the gating factor, not text benchmarks.**
 >
 > The `agentic-chat` task tests structured tool calling via `/api/chat` -- the actual
-> protocol OpenClaw uses. Of 18 local models tested (16 unique architectures + 2 quantization variants), **only 4
+> protocol OpenClaw uses. Of 19 local models tested (17 unique architectures + 2 quantization variants), **only 5
 > model families can produce any structured tool calls at all**. The other 12 -- including models that score A on text-based agentic
 > benchmarks -- fail silently: they return empty responses, stall, or describe tool calls
 > in prose without producing the JSON wire format. A model that can't make structured
@@ -38,26 +38,27 @@ All 5 cloud models scored A or B on the agentic task and A on engine:
 Cloud models set the quality bar. The best local models approach but don't quite match
 the top cloud scores, especially on agentic tasks.
 
-### Agentic-Chat Results (32 Evaluations, 4 Context Sizes)
+### Agentic-Chat Results (34 Evaluations, 4 Context Sizes)
 
 The agentic-chat task runs multi-turn structured tool calling against 8 portfolio analysis
 tools. Models were tested at ctx-8192, ctx-10240, ctx-16384, and ctx-32768 (where supported).
 Two additional qwen3:8b quantization variants (Q6_K and Q8_0) were tested at ctx-10240/16384.
 
-**Grade distribution:** 17 A, 2 B, 1 D, 12 F
+**Grade distribution:** 19 A, 2 B, 1 D, 12 F
 
 **Outcome classification:**
-- **Success** (structured tool calls, completed): 18 evaluations
+- **Success** (structured tool calls, completed): 20 evaluations
 - **Partial Success** (tool calls but incomplete): 2 evaluations
 - **Text Narration** (described tools in prose, 0 structured calls): 6 evaluations
 - **Empty Response** (no tokens, instant return): 4 evaluations
 - **Stalled Inference** (loaded model, burned time, 0 tokens): 2 evaluations
 
-**Only 4 model families produced any structured tool calls:**
+**5 model families produced structured tool calls:**
 
 | Model | ctx-8192 | ctx-10240 | ctx-16384 | ctx-32768 | Best |
 |-------|----------|-----------|-----------|-----------|------|
 | glm-4.7-flash:q4_K_M | A (10.0) | A (9.8) | A (10.0) | A (10.0) | 10.0 |
+| qwen2.5:7b | - | - | A (10.0) | A (10.0) | 10.0 |
 | qwen3:8b (Q4_K_M) | A (10.0) | A (9.0) | A (10.0) | A (10.0) | 10.0 |
 | qwen3:8b Q6_K | - | A (10.0) | A (10.0) | - | 10.0 |
 | qwen3:8b Q8_0 | - | A (10.0) | A (10.0) | - | 10.0 |
@@ -73,10 +74,15 @@ Two additional qwen3:8b quantization variants (Q6_K and Q8_0) were tested at ctx
 - llama3.1:8b, llama3.1:8b-instruct -- `text_narration`
 - mistral:7b-instruct-v0.3-q5_K_M -- `text_narration`
 
-### GPU Mode -- Agentic (Text) and Engine (44 Evaluations Each)
+**Notable:** qwen2.5:7b (the base model) succeeds at tool calling while all three
+qwen2.5-coder variants (7b, 7b-instruct, 14b-instruct) fail with `text_narration`.
+The code-tuning appears to have degraded structured tool-calling ability in the coder
+variants.
 
-**Agentic grade distribution:** 12 A, 24 B, 6 C, 1 D, 1 N/A (timeout)
-**Engine grade distribution:** 18 A, 7 B, 4 D, 15 F
+### GPU Mode -- Agentic (Text) and Engine (46 Evaluations Each)
+
+**Agentic grade distribution:** 13 A, 25 B, 6 C, 1 D, 1 N/A (timeout)
+**Engine grade distribution:** 18 A, 8 B, 4 D, 15 F
 
 ### CPU Mode (14 Local Models, Default Context)
 
@@ -96,6 +102,7 @@ The 7-8B models are largely unaffected.
 |-------|------|----------|-----------|------------|---------------|
 | **7-8B Models** | | | | | |
 | llama3.2:latest | 2.0 GB | 167 | 167 | ~0% | Yes (5.9 GB) |
+| qwen2.5:7b | 4.7 GB | - | 89 | N/A (16K/32K only) | Yes (7.2 GB) |
 | qwen2.5-coder:7b | 4.7 GB | 88 | 89 | ~0% | Yes (6.5 GB) |
 | qwen2.5-coder:7b-instruct-q5_K_M | 5.4 GB | 79 | 78 | ~0% | Yes (8.0 GB) |
 | qwen3:8b (Q4_K_M) | 5.2 GB | 72 | 71 | ~1% | Yes (9.0 GB) |
@@ -125,6 +132,7 @@ during active inference.
 | Model | Size | ctx-8192 | ctx-10240 | ctx-16384 | ctx-32768 | Notes |
 |-------|------|----------|-----------|-----------|-----------|-------|
 | llama3.2:latest | 2.0 GB | 172 | 173 | 177 | 179 | Fastest, but low quality |
+| qwen2.5:7b | 4.7 GB | - | - | 89 | 91 | Fast, perfect quality, no speed loss at 32K |
 | qwen3:8b (Q4_K_M) | 5.2 GB | 74 | 70 | 73 | 71 | Fast, perfect quality |
 | qwen3:8b Q6_K | 6.6 GB | - | 60 | 59 | - | 17% slower than Q4, same quality |
 | qwen3:8b Q8_0 | 8.5 GB | - | 49 | 49 | - | 32% slower than Q4, same quality |
@@ -196,7 +204,7 @@ qwen3:8b the top recommendation in the first place.
 
 ## Recommended Models for OpenClaw
 
-**OpenClaw requires structured tool calling.** Only 4 of 16 tested model families can
+**OpenClaw requires structured tool calling.** Only 5 of 17 tested model families can
 produce structured tool_calls via `/api/chat`. The recommendations below are filtered
 to this viable set, then ranked by combined agentic-chat + engine + speed performance.
 
@@ -242,6 +250,26 @@ to this viable set, then ranked by combined agentic-chat + engine + speed perfor
   A (10.0) on agentic-chat at a tolerable 23 tok/s (118s total). This is the sweet spot --
   close enough to OpenClaw's recommended context size while avoiding the 32K speed cliff.
 - **CPU agentic:** A (9.5)
+
+#### qwen2.5:7b - FASTEST PERFECT TOOL CALLER
+- **Agentic-Chat:** A (10.0) at ctx-16384 and ctx-32768 -- perfect at both tested sizes
+- **Agentic (text):** A (9.0) at 16K; B (8.8) at 32K
+- **Engine:** B (8.7) -- correct logic, some worked example mismatches (share sign inversions)
+- **Speed at 32K:** 91 tok/s chat (no degradation vs 16K -- the 4.7GB model has ample VRAM headroom)
+- **VRAM at 32K:** 8.8 GB (very comfortable on RTX 4070 12GB)
+- **Why:** The fastest model with perfect tool-calling scores. At 91 tok/s it's 28% faster
+  than qwen3:8b (71 tok/s) at 32K, and uses 3 GB less VRAM (8.8 vs 11.6 GB). Perfect 10.0
+  on agentic-chat at both contexts tested, with 27-30 tool calls, 7-8/8 tools used, and
+  all 3 portfolios covered. The VRAM headroom means no risk of CPU spillover at 32K.
+- **Tradeoff:** Engine score (B 8.7) is a step below qwen3:8b (A 9.9) -- the share sign
+  convention was inverted in worked examples, and decimal formatting had minor issues.
+  For pure tool-calling orchestration this doesn't matter, but for coding subtasks
+  qwen3:8b produces more precise code.
+- **Notable:** The base qwen2.5:7b succeeds at tool calling while all three qwen2.5-coder
+  variants (7b, 7b-instruct, 14b-instruct) fail with `text_narration`. The code-tuning
+  appears to have degraded the structured tool-calling ability.
+- **Only tested at 16K/32K.** No 8K/10K data yet, but the 16K and 32K results are both
+  perfect, suggesting this model handles tool calling robustly.
 
 ### Tier 2: Usable But Limited
 
@@ -307,12 +335,16 @@ nearly zero across the tested models:
 - **gpt-oss-20b Q5_K_M**: #2 on text agentic (9.8), F on tool calling (stalled)
 - **phi4:14b**: A (9.0) on text, F on tool calling (empty response)
 - **qwen2.5-coder:7b-instruct**: A (9.2) on text, F on tool calling (narration)
+- **qwen2.5:7b** (base model): A (9.0) on text, **A (10.0) on tool calling** -- succeeds
+  where all three qwen2.5-coder variants fail. Code-tuning broke tool calling.
 - **llama3.2:latest**: B (8.3) on text, A (9.1) on tool calling -- the *weakest*
-  text model among the 4 that passed is the only one besides qwen3 to make all 8 tool calls
+  text model among the 5 that passed is the only one besides qwen3/qwen2.5 to make all 8 tool calls
 
 This is exactly why the agentic-chat task exists. Models that can write *about* tools
 in generated code (the text agentic task) are not necessarily able to produce the structured
-JSON tool_calls that `/api/chat` requires. For OpenClaw, only the latter matters.
+JSON tool_calls that `/api/chat` requires. For OpenClaw, only the latter matters. The
+qwen2.5 vs qwen2.5-coder comparison is particularly striking: same base architecture,
+but code fine-tuning destroyed the tool-calling capability.
 
 ---
 
@@ -334,6 +366,13 @@ JSON tool_calls that `/api/chat` requires. For OpenClaw, only the latter matters
 > 10.5 tok/s (12+ minute response times due to CPU spillover). At ctx-16384 it runs at a
 > tolerable 23 tok/s. Worth the config override if you need the quality edge over 8b.
 
+**Speed-First Alternative (Perfect Quality, Maximum Throughput):**
+> **qwen2.5:7b @ 32K context** -- Perfect agentic-chat (10.0) at 32K, 91 tok/s (28% faster
+> than qwen3:8b), and only 8.8 GB VRAM. The fastest model with perfect tool-calling scores.
+> Weaker on engine (B 8.7 vs A 9.9) so coding subtasks won't be as precise, but for pure
+> tool-calling orchestration it's excellent. The base qwen2.5 model succeeds where all
+> qwen2.5-coder variants fail.
+
 **NOT Recommended Despite Strong Text Scores:**
 > **gpt-oss-20b**, **phi4:14b**, **qwen2.5-coder** (all variants), **gemma2/3**,
 > **deepseek-coder-v2**, **llama3.1**, **mistral** -- all score F on structured tool
@@ -343,15 +382,16 @@ JSON tool_calls that `/api/chat` requires. For OpenClaw, only the latter matters
 
 ```
 Primary Agent:    qwen3:8b       @ 32K context (OpenClaw default -- fast, reliable, fits in VRAM)
+Speed Alt:        qwen2.5:7b     @ 32K context (28% faster, less VRAM, weaker engine)
 Quality Backup:   qwen3:14b      @ 16K context (override default -- 32K is too slow for 14b)
 ```
 
-**qwen3:8b is the clear winner at OpenClaw's 32K default.** It's the only model that
-scores perfectly on structured tool calling AND runs at full GPU speed at 32K context.
-The 14b variant produces higher quality text and now has confirmed perfect scores across
-all context sizes, but requires overriding the context default to 16K to avoid the 32K
-speed cliff (10.5 tok/s vs 23 tok/s). If you need the quality edge, the 14b at 16K is
-a strong choice -- but for most users, qwen3:8b at 32K is simpler and faster.
+**qwen3:8b remains the top overall recommendation** due to its combination of perfect
+tool calling AND top-tier engine scores (A 9.9). qwen2.5:7b matches it on tool calling
+and is significantly faster (91 vs 71 tok/s) with more VRAM headroom (8.8 vs 11.6 GB),
+but its weaker engine score (B 8.7) means coding subtasks will be less precise. If
+OpenClaw's workload is primarily tool orchestration with minimal code generation,
+qwen2.5:7b is the faster choice. If coding quality matters, stick with qwen3:8b.
 
 ### What About Coding Subtasks?
 
@@ -359,7 +399,9 @@ If OpenClaw dispatches coding-only subtasks that use text generation (not tool c
 models like phi4:14b or qwen2.5-coder could theoretically be used for those. However, the
 operational complexity of running different models for different subtask types likely
 outweighs the benefit. qwen3:8b scores A (9.9) on engine and B-A on text agentic, which
-is strong enough for most coding work. Stick with qwen3 for everything.
+is strong enough for most coding work. qwen2.5:7b's engine score (B 8.7) is adequate but
+not as precise. Stick with qwen3:8b for mixed workloads; consider qwen2.5:7b only if the
+workload is predominantly tool orchestration.
 
 ### Does the 32K Context Actually Get Used?
 
@@ -374,7 +416,7 @@ underutilizing the window.
 ---
 
 *Analysis based on automated benchmark reports from cpu, gpu (ctx-8192/10240/16384/32768),
-and cloud modes. Includes quantization comparison (Q4_K_M/Q6_K/Q8_0) for qwen3:8b.
-Agentic-chat evaluation is 100% automated (structured calls are machine-checkable).
-Agentic (text) manual review sections use placeholder 50% scores. Engine evaluation
-is fully automated.*
+and cloud modes. 19 local models tested (17 unique architectures + 2 quantization variants).
+Includes quantization comparison (Q4_K_M/Q6_K/Q8_0) for qwen3:8b. Agentic-chat evaluation
+is 100% automated (structured calls are machine-checkable). Agentic (text) manual review
+sections use placeholder 50% scores. Engine evaluation is fully automated.*

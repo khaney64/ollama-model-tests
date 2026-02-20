@@ -33,6 +33,7 @@ HISTORICAL_CSV_PATH = os.path.join(REQUIREMENTS_DIR, "historical.csv")
 MODELS = [
     # Tier 1: Comfortable fit (<10GB)
     "qwen3:8b",
+    "qwen2.5:7b",
     "qwen2.5-coder:7b-instruct-q5_K_M",
     "gemma2:9b-instruct-q4_K_M",
     "gemma3:12b-it-q4_K_M",
@@ -63,6 +64,7 @@ MODELS = [
 MODELS_TO_PULL = [
     "qwen3:8b",
     "qwen3:14b",
+    "qwen2.5:7b",
     "qwen2.5-coder:7b-instruct-q5_K_M",
     "qwen2.5-coder:14b-instruct-q4_K_M",
     "phi4:14b-q4_K_M",
@@ -80,6 +82,7 @@ MODELS_TO_PULL = [
 MODEL_NUM_CTX = {
     # Tier 1: Comfortable fit
     "qwen3:8b": 8192,
+    "qwen2.5:7b": 8192,
     "qwen2.5-coder:7b-instruct-q5_K_M": 8192,
     "gemma2:9b-instruct-q4_K_M": 8192,
     "gemma3:12b-it-q4_K_M": 8192,
@@ -136,6 +139,7 @@ def get_num_predict(model: str) -> int:
 MODEL_META = {
     # Tier 1: Comfortable fit
     "qwen3:8b": (1, 5.2),
+    "qwen2.5:7b": (1, 4.7),
     "qwen2.5-coder:7b-instruct-q5_K_M": (1, 5.4),
     "gemma2:9b-instruct-q4_K_M": (1, 5.8),
     "gemma3:12b-it-q4_K_M": (1, 8.1),

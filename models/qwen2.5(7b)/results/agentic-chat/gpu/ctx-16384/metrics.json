@@ -1,0 +1,66 @@
+{
+  "model": "qwen2.5:7b",
+  "task": "agentic-chat",
+  "wall_clock_s": 47.91,
+  "num_ctx": 16384,
+  "num_predict": 16384,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-19T19:00:25.586014",
+  "timing": {
+    "total_duration_s": 47.91,
+    "prompt_eval_duration_s": 1.09,
+    "eval_duration_s": 42.4
+  },
+  "tokens": {
+    "prompt_eval_count": 8866,
+    "eval_count": 3763,
+    "prompt_eval_tokens_per_sec": 8157.94,
+    "eval_tokens_per_sec": 88.75
+  },
+  "chat": {
+    "total_turns": 3,
+    "total_tool_calls": 30,
+    "successful_tool_calls": 27,
+    "tool_call_success_rate": 0.9,
+    "tools_used": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "log_operation",
+      "send_notification"
+    ],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.88,
+    "failure_classification": {
+      "classification": "success",
+      "description": "Made 30 tool calls using 7 tools, completed with final response"
+    }
+  },
+  "gpu": {
+    "peak_vram_mb": 7155.0,
+    "avg_vram_mb": 6909.3,
+    "avg_gpu_utilization_pct": 89.1,
+    "max_gpu_utilization_pct": 100.0,
+    "max_temperature_c": 64.0,
+    "peak_cpu_pct": 15.0,
+    "avg_cpu_pct": 8.1,
+    "sample_count": 46
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}
