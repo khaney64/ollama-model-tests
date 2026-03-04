@@ -1,0 +1,37 @@
+{
+  "model": "hf.co/DevQuasar/Nanbeige.Nanbeige4.1-3B-GGUF:Q8_0",
+  "timing": {
+    "total_duration_s": 136.55,
+    "load_duration_s": 1.86,
+    "prompt_eval_duration_s": 0.36,
+    "eval_duration_s": 129.57
+  },
+  "tokens": {
+    "prompt_eval_count": 3342,
+    "eval_count": 11849,
+    "prompt_eval_tokens_per_sec": 9196.87,
+    "eval_tokens_per_sec": 91.45
+  },
+  "gpu": {
+    "peak_vram_mb": 8083.0,
+    "avg_vram_mb": 7878.2,
+    "avg_gpu_utilization_pct": 94.7,
+    "max_gpu_utilization_pct": 99.0,
+    "max_temperature_c": 62.0,
+    "peak_cpu_pct": 19.6,
+    "avg_cpu_pct": 9.9,
+    "sample_count": 129
+  },
+  "task": "agentic",
+  "wall_clock_s": 136.58,
+  "num_ctx": 32768,
+  "num_predict": 16000,
+  "num_threads": 18,
+  "execution_mode": "gpu",
+  "run_timestamp": "2026-02-22T00:02:56.278610",
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

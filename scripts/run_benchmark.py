@@ -26,6 +26,7 @@ from config import (
     get_model_results_dir,
     get_num_ctx,
     get_num_predict,
+    get_chat_temperature,
     model_to_dirname,
     is_cloud_model,
 )
@@ -446,12 +447,15 @@ def run_single_benchmark(model: str, task: str, mode: str, num_ctx_override: int
     time.sleep(2)  # Brief pause to let VRAM clear
 
 
-def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override: int | None = None, num_predict_override: int | None = None, timeout: int = 600, num_threads: int | None = None):
+def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override: int | None = None, num_predict_override: int | None = None, timeout: int = 600, num_threads: int | None = None, context_management: str = "none", temperature: float | None = None):
     """Run a single model against the agentic-chat task using /api/chat with tool calling."""
     print(f"\n{'='*60}")
     print(f"Model: {model}")
     print(f"Task:  {task} (chat mode)")
     print(f"Mode:  {mode}")
+    if context_management != "none":
+        print(f"Context Management: {context_management}")
+    print(f"Temperature: {temperature}")
     print(f"{'='*60}")
 
     # Load and parse prompt
@@ -494,6 +498,8 @@ def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override
         num_predict=num_predict,
         timeout_total=timeout,
         num_threads=num_threads,
+        context_management=context_management,
+        temperature=temperature,
     )
     elapsed = time.time() - start_time
     print(f"  Chat completed in {elapsed:.1f}s ({chat_result['total_turns']} turns)")
@@ -514,7 +520,9 @@ def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override
         "wall_clock_s": round(elapsed, 2),
         "num_ctx": num_ctx,
         "num_predict": num_predict,
+        "temperature": temperature,
         "execution_mode": mode,
+        "context_management": context_management,
         "run_timestamp": datetime.now().isoformat(),
         "timing": chat_metrics["timing"],
         "tokens": chat_metrics["tokens"],
@@ -560,7 +568,11 @@ def run_single_chat_benchmark(model: str, task: str, mode: str, num_ctx_override
 
     # Save results
     ctx_size = num_ctx if mode == "gpu" else None
-    save_chat_results(model, task, chat_result, metrics, mode=mode, ctx_size=ctx_size)
+    save_chat_results(
+        model, task, chat_result, metrics, mode=mode, ctx_size=ctx_size,
+        num_ctx=num_ctx, num_predict=num_predict, tools=TOOL_DEFINITIONS,
+        context_management=context_management, temperature=temperature,
+    )
 
     # Unload model to free VRAM
     print("  Unloading model...")
@@ -618,6 +630,19 @@ def main():
         choices=["cloud", "cpu", "gpu"],
         help="Execution mode: cloud (API models), cpu (local CPU-only), gpu (local GPU-accelerated)"
     )
+    parser.add_argument(
+        "--context-management",
+        type=str,
+        default="none",
+        choices=["none", "managed"],
+        help="Context management for agentic-chat: 'none' (full history, stress test) or 'managed' (prune old turns, OpenClaw-realistic). Default: none"
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature for agentic-chat (overrides size-based default). Lower = more deterministic tool calls."
+    )
     args = parser.parse_args()
 
     timeout_seconds = args.timeout * 60
@@ -662,6 +687,8 @@ def main():
     print(f"Models: {len(models)}")
     print(f"Tasks:  {len(tasks)}")
     print(f"Total runs: {len(models) * len(tasks)}")
+    if "agentic-chat" in tasks and args.context_management != "none":
+        print(f"Context Management: {args.context_management} (agentic-chat only)")
 
     # Show CPU thread info
     available_threads = os.cpu_count() or 1
@@ -748,12 +775,16 @@ def main():
             current += 1
             print(f"\n[{current}/{total}]")
             if task == "agentic-chat":
+                # Use explicit --temperature if provided, else size-based default
+                temp = args.temperature if args.temperature is not None else get_chat_temperature(model)
                 run_single_chat_benchmark(
                     model, task, mode=args.mode,
                     num_ctx_override=args.num_ctx,
                     num_predict_override=args.num_predict,
                     timeout=timeout_seconds,
-                    num_threads=num_threads
+                    num_threads=num_threads,
+                    context_management=args.context_management,
+                    temperature=temp,
                 )
             else:
                 run_single_benchmark(

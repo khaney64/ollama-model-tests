@@ -97,7 +97,14 @@ class AgenticChatEvaluator:
 
         try:
             with open(transcript_file, "r", encoding="utf-8") as f:
-                messages = json.load(f)
+                raw = json.load(f)
+            # Handle both old format (plain array) and new enriched format (object)
+            if isinstance(raw, list):
+                messages = raw
+                turn_diagnostics = None
+            else:
+                messages = raw.get("messages", [])
+                turn_diagnostics = raw.get("turn_diagnostics")
         except (json.JSONDecodeError, OSError) as e:
             result["status"] = f"Failed to read transcript: {e}"
             result["scores"]["total"] = 0
@@ -148,6 +155,38 @@ class AgenticChatEvaluator:
         # Include chat metrics summary if available
         if "chat" in metrics:
             result["details"]["chat_metrics"] = metrics["chat"]
+
+        # Record context management mode if present
+        ctx_mgmt = metrics.get("context_management", "none")
+        result["details"]["context_management"] = ctx_mgmt
+
+        # Context pressure analysis from turn diagnostics
+        if turn_diagnostics:
+            max_pressure = 0
+            high_pressure_turns = []
+            for td in turn_diagnostics:
+                pressure = td.get("context_pressure_pct", 0)
+                if pressure > max_pressure:
+                    max_pressure = pressure
+                if pressure > 90:
+                    high_pressure_turns.append(td.get("turn", "?"))
+
+            result["details"]["context_pressure"] = {
+                "max_pressure_pct": max_pressure,
+                "high_pressure_turns": high_pressure_turns,
+                "total_turns_analyzed": len(turn_diagnostics),
+            }
+
+            if high_pressure_turns:
+                pressure_note = (
+                    f"Context pressure exceeded 90% on turn(s) {', '.join(str(t) for t in high_pressure_turns)} "
+                    f"(max {max_pressure:.1f}%)"
+                )
+                if ctx_mgmt == "managed":
+                    pressure_note += " -- context management was active, pressure reflects pruned messages"
+                else:
+                    pressure_note += " -- tool definitions may have been truncated"
+                result["issues"].append(pressure_note)
 
         return result
 
@@ -793,6 +832,20 @@ class AgenticChatEvaluator:
                     f.write(f"**Turns:** {cm.get('total_turns', '?')} | "
                             f"**Tool calls:** {cm.get('total_tool_calls', '?')} | "
                             f"**Success rate:** {cm.get('tool_call_success_rate', 0)*100:.0f}%\n\n")
+
+                ctx_mgmt = details.get("context_management", "none")
+                if ctx_mgmt != "none":
+                    f.write(f"**Context Management:** {ctx_mgmt} (old turns pruned to fit context window)\n\n")
+
+                if "context_pressure" in details:
+                    cp = details["context_pressure"]
+                    max_p = cp.get("max_pressure_pct", 0)
+                    high_turns = cp.get("high_pressure_turns", [])
+                    if high_turns:
+                        f.write(f"**Context Pressure:** {max_p:.1f}% peak "
+                                f"(\u26a0 exceeded 90% on turn(s) {', '.join(str(t) for t in high_turns)})\n\n")
+                    elif max_p > 0:
+                        f.write(f"**Context Pressure:** {max_p:.1f}% peak\n\n")
 
                 if r["issues"]:
                     f.write("**Issues:**\n")

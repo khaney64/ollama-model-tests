@@ -1,0 +1,63 @@
+{
+  "model": "hf.co/unsloth/gpt-oss-20b-GGUF:Q4_K_M",
+  "task": "agentic-chat",
+  "wall_clock_s": 300.01,
+  "num_ctx": 16384,
+  "num_predict": 12000,
+  "temperature": 0.2,
+  "execution_mode": "gpu",
+  "context_management": "managed",
+  "run_timestamp": "2026-02-22T18:22:10.943659",
+  "timing": {
+    "total_duration_s": 300.01,
+    "prompt_eval_duration_s": 0.0,
+    "eval_duration_s": 0.0
+  },
+  "tokens": {
+    "prompt_eval_count": 0,
+    "eval_count": 0,
+    "prompt_eval_tokens_per_sec": 0,
+    "eval_tokens_per_sec": 0
+  },
+  "chat": {
+    "total_turns": 1,
+    "total_tool_calls": 0,
+    "successful_tool_calls": 0,
+    "tool_call_success_rate": 0,
+    "tools_used": [],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.0,
+    "failure_classification": {
+      "classification": "stalled_inference",
+      "description": "Model loaded (300s) but generated 0 tokens -- may produce unparseable output in tool-calling mode"
+    }
+  },
+  "gpu": {
+    "peak_vram_mb": 11667.0,
+    "avg_vram_mb": 11547.6,
+    "avg_gpu_utilization_pct": 34.3,
+    "max_gpu_utilization_pct": 43.0,
+    "max_temperature_c": 46.0,
+    "peak_cpu_pct": 38.5,
+    "avg_cpu_pct": 25.3,
+    "sample_count": 285
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  },
+  "warnings": [
+    "Chat did not complete with a final text response"
+  ]
+}

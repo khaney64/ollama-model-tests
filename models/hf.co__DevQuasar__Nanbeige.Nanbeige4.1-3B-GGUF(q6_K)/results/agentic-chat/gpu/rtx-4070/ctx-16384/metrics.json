@@ -1,0 +1,66 @@
+{
+  "model": "hf.co/DevQuasar/Nanbeige.Nanbeige4.1-3B-GGUF:Q6_K",
+  "task": "agentic-chat",
+  "wall_clock_s": 137.0,
+  "num_ctx": 16384,
+  "num_predict": 12000,
+  "temperature": 0.2,
+  "execution_mode": "gpu",
+  "context_management": "managed",
+  "run_timestamp": "2026-02-22T16:25:19.311950",
+  "timing": {
+    "total_duration_s": 137.01,
+    "prompt_eval_duration_s": 4.19,
+    "eval_duration_s": 124.37
+  },
+  "tokens": {
+    "prompt_eval_count": 161768,
+    "eval_count": 14418,
+    "prompt_eval_tokens_per_sec": 38598.01,
+    "eval_tokens_per_sec": 115.92
+  },
+  "chat": {
+    "total_turns": 19,
+    "total_tool_calls": 18,
+    "successful_tool_calls": 18,
+    "tool_call_success_rate": 1.0,
+    "tools_used": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation"
+    ],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.62,
+    "failure_classification": {
+      "classification": "success",
+      "description": "Made 18 tool calls using 5 tools, completed with final response"
+    }
+  },
+  "gpu": {
+    "peak_vram_mb": 6668.0,
+    "avg_vram_mb": 6620.1,
+    "avg_gpu_utilization_pct": 93.2,
+    "max_gpu_utilization_pct": 100.0,
+    "max_temperature_c": 66.0,
+    "peak_cpu_pct": 22.0,
+    "avg_cpu_pct": 9.3,
+    "sample_count": 129
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "model": "hf.co/DevQuasar/Nanbeige.Nanbeige4.1-3B-GGUF:q4_K_M",
+  "task": "agentic-chat",
+  "wall_clock_s": 108.38,
+  "num_ctx": 16384,
+  "num_predict": 12000,
+  "temperature": 0.2,
+  "execution_mode": "gpu",
+  "context_management": "managed",
+  "run_timestamp": "2026-02-22T16:21:50.950793",
+  "timing": {
+    "total_duration_s": 108.37,
+    "prompt_eval_duration_s": 3.25,
+    "eval_duration_s": 97.13
+  },
+  "tokens": {
+    "prompt_eval_count": 242855,
+    "eval_count": 13035,
+    "prompt_eval_tokens_per_sec": 74728.49,
+    "eval_tokens_per_sec": 134.2
+  },
+  "chat": {
+    "total_turns": 18,
+    "total_tool_calls": 18,
+    "successful_tool_calls": 18,
+    "tool_call_success_rate": 1.0,
+    "tools_used": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation"
+    ],
+    "tools_available": [
+      "calculate_portfolio_value",
+      "calculate_volatility_score",
+      "check_risk_threshold",
+      "generate_report",
+      "get_portfolio_holdings",
+      "get_stock_prices",
+      "log_operation",
+      "send_notification"
+    ],
+    "tool_coverage": 0.75,
+    "failure_classification": {
+      "classification": "partial_success",
+      "description": "Made 18 tool calls but no final text response"
+    }
+  },
+  "gpu": {
+    "peak_vram_mb": 6089.0,
+    "avg_vram_mb": 6009.8,
+    "avg_gpu_utilization_pct": 93.9,
+    "max_gpu_utilization_pct": 100.0,
+    "max_temperature_c": 66.0,
+    "peak_cpu_pct": 20.7,
+    "avg_cpu_pct": 10.0,
+    "sample_count": 102
+  },
+  "num_threads": 18,
+  "hardware": {
+    "cpu_logical_cores": 24,
+    "gpu_name": "NVIDIA GeForce RTX 4070",
+    "gpu_vram_total_mb": 12282.0
+  },
+  "warnings": [
+    "Chat did not complete with a final text response"
+  ]
+}
